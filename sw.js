@@ -1,0 +1,15 @@
+// Hangulandia asset service worker: unpacks asset packs into Cache Storage and serves /_blob/<id>
+const V='b0f6bbd913';const CACHE='hl-assets-'+V;const PAGES='hl-pages-'+V;
+const PACKS=["assets-1.bin", "assets-2.bin", "assets-3.bin", "assets-4.bin"];
+const B=new URL(self.registration.scope).pathname;const SHELL=['','index.html','support.js','manifest.webmanifest','icon-192.png','icon-512.png','Main.dc.html','Mapa.dc.html','Quiz.dc.html','Clases.dc.html','Carta.dc.html','Nivel.dc.html'].map(x=>B+x);
+async function unpack(){const c=await caches.open(CACHE);const idx=await (await fetch(B+'packs/index.json?v='+V,{cache:'no-store'})).json();
+ let done=0;const total=idx.packs.length;
+ await Promise.all(idx.packs.map(async(pk)=>{const buf=await (await fetch(B+'packs/'+pk.file+'?v='+V,{cache:'no-store'})).arrayBuffer();
+  for(const e of pk.items){const body=buf.slice(e.o,e.o+e.n);await c.put(B+'_blob/'+e.id,new Response(body,{headers:{'content-type':e.t,'content-length':String(e.n),'cache-control':'public, max-age=31536000'}}));}
+  done++;const cl=await self.clients.matchAll({includeUncontrolled:true});cl.forEach(x=>x.postMessage({hl:'progress',done,total}));}));}
+self.addEventListener('install',e=>{e.waitUntil((async()=>{await unpack();const p=await caches.open(PAGES);await p.addAll(SHELL.map(u=>new Request(u,{cache:'no-store'})));self.skipWaiting();})());});
+self.addEventListener('activate',e=>{e.waitUntil((async()=>{for(const k of await caches.keys())if(k!==CACHE&&k!==PAGES)await caches.delete(k);await self.clients.claim();})());});
+self.addEventListener('fetch',e=>{const u=new URL(e.request.url);if(u.origin!==location.origin)return;
+ if(u.pathname.startsWith(B+'_blob/')){e.respondWith((async()=>{const c=await caches.open(CACHE);const r=await c.match(u.pathname);if(r){const rg=e.request.headers.get('range');if(rg&&/^video\//.test(r.headers.get('content-type')||'')){const b=await r.arrayBuffer();const m=/bytes=(\d+)-(\d*)/.exec(rg);const s=+m[1],en=m[2]?+m[2]:b.byteLength-1;return new Response(b.slice(s,en+1),{status:206,headers:{'content-type':r.headers.get('content-type'),'content-range':`bytes ${s}-${en}/${b.byteLength}`,'accept-ranges':'bytes','content-length':String(en-s+1)}});}return r;}return new Response('',{status:404});})());return;}
+ if(e.request.mode==='navigate'||/\.(dc\.html|js|webmanifest|png)$/.test(u.pathname)){e.respondWith((async()=>{try{const r=await fetch(e.request);if(r.ok){const p=await caches.open(PAGES);p.put(u.pathname,r.clone());}return r;}catch(x){const p=await caches.open(PAGES);return (await p.match(u.pathname))||(await p.match(B+'Main.dc.html'));}})());}
+});
