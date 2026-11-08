@@ -1,5 +1,23 @@
 /* Hangulandia: "install as app" guide for browser visitors */
 (function(){
+  /* Samsung Internet ignores every page-side dark-mode opt-out, so guide the user instead */
+  try {
+    var sua = navigator.userAgent || '';
+    if (/SamsungBrowser/i.test(sua) && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches && !sessionStorage.getItem('hl-sdark')) {
+      var sko = false; try { sko = (localStorage.getItem('yoolmi-lang') || '') === 'ko'; } catch(e){}
+      var ST = sko ? { t: '색이 어둡게 보이나요?', s: '삼성 인터넷의 다크 모드가 앱 색을 바꾸고 있어요. 오른쪽 아래 ≡ 메뉴에서 ‘라이트 모드’를 누르거나, 크롬으로 열어 주세요.', a: '크롬으로 열기', b: '닫기' }
+                   : { t: '¿Ves los colores oscuros?', s: 'El modo oscuro de Samsung Internet cambia los colores de la app. Toca el menú ≡ abajo a la derecha y elige “Modo claro”, o ábrela en Chrome.', a: 'Abrir en Chrome', b: 'Cerrar' };
+      var showS = function(){
+        if (!document.body || document.getElementById('hl-sdark')) return;
+        var w = document.createElement('div'); w.id = 'hl-sdark';
+        w.innerHTML = '<style>#hl-sdark{position:fixed;left:0;right:0;top:0;z-index:2147483001;display:flex;justify-content:center;padding:calc(10px + env(safe-area-inset-top)) 10px 0;font-family:"Yoolmi Hand","Fredoka","Noto Sans KR",sans-serif;color:#4A3A32}#hl-sdark .c{width:100%;max-width:380px;box-sizing:border-box;background:#FFFBF3;border:1.8px solid #8A766B;border-radius:22px;padding:14px 16px 12px;box-shadow:0 10px 30px rgba(60,40,25,.25)}#hl-sdark .t{font-weight:700;font-size:16px}#hl-sdark .s{font-size:13px;font-weight:700;opacity:.75;line-height:1.45;margin-top:4px}#hl-sdark .bt{display:flex;gap:8px;margin-top:10px}#hl-sdark a,#hl-sdark button{font:inherit;font-weight:700;font-size:14px;color:#4A3A32;border-radius:999px;border:1.5px solid #8A766B;min-height:42px;display:flex;align-items:center;justify-content:center;text-decoration:none;cursor:pointer}#hl-sdark a{flex:1.6;background:#9CD3A6}#hl-sdark button{flex:1;background:#fff}</style>'+
+          '<div class="c"><div class="t">'+ST.t+'</div><div class="s">'+ST.s+'</div><div class="bt"><a href="intent://'+location.host+location.pathname+location.search+'#Intent;scheme=https;package=com.android.chrome;end">'+ST.a+'</a><button type="button">'+ST.b+'</button></div></div>';
+        document.body.appendChild(w);
+        w.querySelector('button').onclick = function(){ try { sessionStorage.setItem('hl-sdark','1'); } catch(e){} w.remove(); };
+      };
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function(){ setTimeout(showS, 800); }); else setTimeout(showS, 800);
+    }
+  } catch(e){}
   var standalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
   if (standalone) return;
   var ls = function(k, v){ try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch(e){ return null; } };
