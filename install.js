@@ -30,7 +30,7 @@
     and1: 'Toca el menú ⋮ arriba a la derecha', and2: 'Toca “Instalar app” o “Agregar a inicio”',
     done: '¡Instalación iniciada! Abre la app con el ícono de Tosuni.'
   };
-  var css = '#hl-inst{position:fixed;left:0;right:0;bottom:0;z-index:2147483000;display:flex;justify-content:center;padding:0 10px calc(10px + env(safe-area-inset-bottom));pointer-events:none;font-family:"Yoolmi Hand","Fredoka","Noto Sans KR",sans-serif;color:#4A3A32}'+
+  var css = '#hl-inst{color-scheme:only light;position:fixed;left:0;right:0;bottom:0;z-index:2147483000;display:flex;justify-content:center;padding:0 10px calc(10px + env(safe-area-inset-bottom));pointer-events:none;font-family:"Yoolmi Hand","Fredoka","Noto Sans KR",sans-serif;color:#4A3A32}'+
   '#hl-inst .c{pointer-events:auto;width:100%;max-width:380px;box-sizing:border-box;background:#FFFBF3;border:1.8px solid #8A766B;border-radius:24px;padding:16px 16px 14px;box-shadow:0 10px 30px rgba(60,40,25,.25);transform:translateY(130%);transition:transform .45s cubic-bezier(.2,1.2,.4,1)}'+
   '#hl-inst.on .c{transform:none}'+
   '#hl-inst .h{display:flex;gap:12px;align-items:center}#hl-inst .h img{width:56px;height:56px;border-radius:16px;border:1.4px solid #8A766B;flex:none}'+
