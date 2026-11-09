@@ -51,7 +51,8 @@
   W.addEventListener('storage', function(e){ if (e && e.key === 'yoolmi-bgm') { if (e.newValue === '0') stop(); else start(); } });
   document.addEventListener('pointerdown', gesture);
   /* warm up the decode early so the first screen starts quickly */
-  if (isOn()) { try { load(); } catch(e){} }
+  var warm = function(){ if (isOn()) { try { load(); } catch(e){} } };
+  try { if (navigator.serviceWorker && !navigator.serviceWorker.controller) navigator.serviceWorker.addEventListener('controllerchange', warm, { once: true }); else warm(); } catch(e){ warm(); }
 
   /* frame management */
   var f = document.getElementById('hl-f');

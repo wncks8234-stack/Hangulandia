@@ -1,5 +1,5 @@
 // Hangulandia asset service worker: unpacks asset packs into Cache Storage and serves /_blob/<id>
-const V='7b8d1467fe';const CACHE='hl-assets-'+V;const PAGES='hl-pages-'+V;
+const V='2310bc9215';const CACHE='hl-assets-'+V;const PAGES='hl-pages-'+V;
 const PACKS=["assets-1.bin", "assets-2.bin", "assets-3.bin", "assets-4.bin"];
 const B=new URL(self.registration.scope).pathname;const SHELL=['','index.html','support.js','manifest.webmanifest','icon-192.png','icon-512.png','Main.dc.html','Mapa.dc.html','Quiz.dc.html','Clases.dc.html','Carta.dc.html','Nivel.dc.html','install.js','shell.js'].map(x=>B+x);
 async function unpack(){const c=await caches.open(CACHE);const idx=await (await fetch(B+'packs/index.json?v='+V,{cache:'no-store'})).json();
