@@ -23,6 +23,7 @@
   var saveT = null;
   function start(){
     if (!isOn()) return;
+    if (ari && !ari.paused) return;
     var c = ctx(); if (!c) return;
     try { if (c.state === 'suspended') c.resume(); } catch(e){}
     if (P || start._busy) return;
@@ -39,15 +40,60 @@
     }).catch(function(){ start._busy = false; });
   }
   function stop(){
+    ariStop();
     if (!P) return;
     save(false); clearInterval(saveT); saveT = null;
     var s = P.src, g = P.g; P = null;
     try { g.gain.cancelScheduledValues(ac.currentTime); g.gain.setValueAtTime(Math.max(0.0001, g.gain.value), ac.currentTime); g.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + 0.5); s.stop(ac.currentTime + 0.55); } catch(e){ try { s.stop(); } catch(e2){} }
   }
-  function gesture(){ var c = ctx(); try { if (c && c.state === 'suspended') c.resume(); } catch(e){} if (isOn() && !P) start(); }
-  W.__hlBgm = { start: start, stop: stop, gesture: gesture, isOn: isOn, playing: function(){ return !!P; } };
+  function gesture(){ var c = ctx(); try { if (c && c.state === 'suspended') c.resume(); } catch(e){} if (isOn() && !P && !(ari && !ari.paused) && !ov) start(); }
+
+  /* ---- intro video (full screen) + Arirang that keeps going after the video ---- */
+  var ari = null, ariG = null, ariSrc = null;
+  function ariStop(){ if (!ari) return; try { if (ariG && ac) { ariG.gain.cancelScheduledValues(ac.currentTime); ariG.gain.setValueAtTime(ariG.gain.value, ac.currentTime); ariG.gain.linearRampToValueAtTime(0, ac.currentTime + 0.6); } } catch(e){} var a = ari; setTimeout(function(){ try { a.pause(); } catch(e){} }, 650); }
+  function ariPlay(at){
+    var c = ctx();
+    if (!ari) {
+      ari = new Audio('media/arirang.m4a'); ari.preload = 'auto'; ari.crossOrigin = 'anonymous';
+      try { if (c) { ariSrc = c.createMediaElementSource(ari); ariG = c.createGain(); ariSrc.connect(ariG); ariG.connect(c.destination); } } catch(e){ ariSrc = null; ariG = null; }
+      ari.addEventListener('ended', function(){ if (isOn()) start(); });
+    }
+    try { if (c && c.state === 'suspended') c.resume(); } catch(e){}
+    if (ariG && c) { ariG.gain.cancelScheduledValues(c.currentTime); ariG.gain.setValueAtTime(0.9, c.currentTime); } else { ari.volume = 0.9; }
+    try { ari.currentTime = at || 0; } catch(e){}
+    var pr = ari.play(); if (pr && pr.catch) pr.catch(function(){});
+  }
+  var ov = null, vid = null;
+  function introClose(){ if (!ov) return; ov.style.opacity = '0'; var o = ov; ov = null; setTimeout(function(){ try { vid.pause(); } catch(e){} o.remove(); }, 260); }
+  function introPlay(lang){
+    if (ov) return;
+    var es = lang === 'es';
+    var music = isOn();
+    if (music) { if (P) { var s0 = P.src, g0 = P.g; save(false); clearInterval(saveT); saveT = null; P = null; try { g0.gain.cancelScheduledValues(ac.currentTime); g0.gain.setValueAtTime(Math.max(0.0001, g0.gain.value), ac.currentTime); g0.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + 0.4); s0.stop(ac.currentTime + 0.45); } catch(e){} } }
+    ov = document.createElement('div');
+    ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', es ? 'Historia de 한글 나라' : '한글 나라 이야기');
+    ov.style.cssText = 'position:fixed;inset:0;z-index:2147483000;background:#000;opacity:0;transition:opacity .25s ease;display:flex;align-items:center;justify-content:center';
+    vid = document.createElement('video');
+    vid.src = music ? 'media/intro-sfx.mp4' : 'media/intro.mp4'; vid.poster = 'media/intro-poster.jpg';
+    vid.playsInline = true; vid.setAttribute('playsinline', ''); vid.setAttribute('webkit-playsinline', ''); vid.autoplay = true; vid.preload = 'auto';
+    vid.style.cssText = 'width:100%;height:100%;object-fit:contain;background:#000';
+    var x = document.createElement('button');
+    x.type = 'button'; x.setAttribute('aria-label', es ? 'Cerrar' : '닫기');
+    x.style.cssText = 'position:absolute;top:calc(14px + env(safe-area-inset-top));right:14px;width:44px;height:44px;border-radius:50%;border:1.6px solid rgba(255,255,255,.85);background:rgba(30,20,14,.45);display:flex;align-items:center;justify-content:center;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)';
+    x.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+    x.addEventListener('click', function(e){ e.stopPropagation(); introClose(); });
+    vid.addEventListener('ended', introClose);
+    var started = false;
+    vid.addEventListener('playing', function(){ if (started || !music) return; started = true; ariPlay(vid.currentTime || 0); });
+    ov.appendChild(vid); ov.appendChild(x); document.body.appendChild(ov);
+    requestAnimationFrame(function(){ if (ov) ov.style.opacity = '1'; });
+    var pr = vid.play(); if (pr && pr.catch) pr.catch(function(){ /* blocked: user can tap */ });
+    ov.addEventListener('click', function(){ if (vid.paused) { var q = vid.play(); if (q && q.catch) q.catch(function(){}); } });
+  }
+  W.__hlIntro = { play: introPlay, close: introClose, playing: function(){ return !!(ari && !ari.paused); } };
+  W.__hlBgm = { start: start, stop: stop, gesture: gesture, isOn: isOn, playing: function(){ return !!P || !!(ari && !ari.paused); } };
   W.addEventListener('pagehide', function(){ save(!!P); });
-  document.addEventListener('visibilitychange', function(){ if (!ac) return; try { if (document.hidden) { save(!!P); ac.suspend(); } else if (isOn()) ac.resume(); } catch(e){} });
+  document.addEventListener('visibilitychange', function(){ if (!ac) return; try { if (document.hidden) { save(!!P); ac.suspend(); if (ari && !ari.paused) { ari.pause(); ari._resume = true; } } else if (isOn()) { ac.resume(); if (ari && ari._resume) { ari._resume = false; var q = ari.play(); if (q && q.catch) q.catch(function(){}); } } } catch(e){} });
   W.addEventListener('storage', function(e){ if (e && e.key === 'yoolmi-bgm') { if (e.newValue === '0') stop(); else start(); } });
   document.addEventListener('pointerdown', gesture);
   /* warm up the decode early so the first screen starts quickly */
