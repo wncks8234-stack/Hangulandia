@@ -122,6 +122,14 @@
     } catch(e){}
   }
   W.__hlTap = tap;
+  /* answer sounds: correct = "ding-dong-daeng" marimba (G5 C6 E6), wrong = soft "ppuing" drop */
+  var fxBuf = {};
+  function fxMake(c, k){ var sr = c.sampleRate, d = k === 'ok' ? 0.95 : 0.4, n = Math.floor(sr * d), b = c.createBuffer(1, n, sr), x = b.getChannelData(0), pk = 0, i, t;
+    if (k === 'ok') { var NT = [[0, 783.99, .12], [.1, 1046.5, .12], [.2, 1318.5, .25]];
+      for (i = 0; i < n; i++) { t = i / sr; var v = 0; for (var q = 0; q < 3; q++) { var u = t - NT[q][0]; if (u < 0) continue; var f = NT[q][1], e = Math.min(1, u / 0.003) * Math.exp(-u / NT[q][2]); v += e * (Math.sin(2 * Math.PI * f * u) + 0.3 * Math.sin(2 * Math.PI * f * 4 * u) + 0.12 * Math.sin(2 * Math.PI * f * 2.76 * u)); } x[i] = v; }
+    } else { var ph = 0; for (i = 0; i < n; i++) { t = i / sr; var f2 = 420 - 170 * Math.min(1, t / 0.32); ph += 2 * Math.PI * f2 / sr; x[i] = t < 0.32 ? Math.sin(ph) * Math.min(1, t / 0.01) * Math.exp(-t / 0.14) * (1 + 0.25 * Math.sin(2 * Math.PI * 14 * t)) : 0; } }
+    for (i = 0; i < n; i++) if (Math.abs(x[i]) > pk) pk = Math.abs(x[i]); for (i = 0; i < n; i++) x[i] = x[i] / pk * 0.5; return b; }
+  W.__hlSfx = function(k){ try { if (!isOn()) return; var c = ctx(); if (!c) return; if (c.state === 'suspended') { try { c.resume(); } catch(e){} } k = k === 'ok' ? 'ok' : 'no'; if (!fxBuf[k]) fxBuf[k] = fxMake(c, k); var s = c.createBufferSource(); s.buffer = fxBuf[k]; s.connect(c.destination); s.start(c.currentTime + 0.03); } catch(e){} };
   document.addEventListener('pointerdown', tap, true);
   /* warm up the decode early so the first screen starts quickly */
   var warm = function(){ if (isOn()) { try { load(); } catch(e){} } };

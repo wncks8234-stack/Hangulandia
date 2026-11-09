@@ -335,8 +335,9 @@ sentBase(df) { return ({ LH: 1, SS: 2, GE: 3 })[df] + this.sentStage(df) - 1; }
 sentGive(n) { const dk = 'yoolmi-sent-g' + this.dayKey(); const cur = this.lsInt(dk); const g = n > 0 ? this.vocGive(n, true) : 0; if (g) { try { window.localStorage.setItem(dk, String(cur + g)); } catch (e) {} } return g; }
 sentMode(df, i) { if (df !== 'LH' || Math.floor(i / 10) !== 0) return 'card'; const it = this.sentData('LH')[i]; return it[2].every((ch) => { const j = this.jamoSplit(ch); return j && j.t === 0; }) ? 'jamo' : 'card'; }
 sentSetup(df, i) { const it = this.sentData(df)[i]; const mode = this.sentMode(df, i); const st = { smode: mode, spk: [], sres: '', sbad: 0, sbadK: '', slast: 0, sj: 0, sjc: '' }; if (mode === 'card') st.sord = this.sentShuffle(it[2].concat(it[3]).map((w, k) => k)); else { const j = this.jamoSplit(it[2][0]); st.sjL = this.jamoOpts(j.l, false); st.sjV = this.jamoOpts(j.v, true); } this.setState(st); }
-sentSolve() { const S = this.state || {}; const D = this.sentData(this.sentDiff()); const it = D[S.sq[S.sp]]; const first = !(S.sbad > 0); const mk = { sres: 'ok', slast: first ? 1 : 0 }; if (S.sph === 'retry') { const a = (S.srm || []).slice(); a[S.sp] = first ? 'r' : 'x'; mk.srm = a; } else { const a = (S.smark || []).slice(); a[S.sp] = first ? 'o' : 'x'; mk.smark = a; mk.sgot = (S.sgot || 0) + (first ? 1 : 0); } this.setState(mk); setTimeout(() => this.vocSpeak(it[2].join(this.sentDiff() === 'LH' ? '' : ' ')), 250); }
-sentBad(key) { const S = this.state || {}; this.setState({ sbad: (S.sbad || 0) + 1, sbadK: key + ':' + Date.now() }); }
+sentSolve() { this.hlSfx('ok'); const S = this.state || {}; const D = this.sentData(this.sentDiff()); const it = D[S.sq[S.sp]]; const first = !(S.sbad > 0); const mk = { sres: 'ok', slast: first ? 1 : 0 }; if (S.sph === 'retry') { const a = (S.srm || []).slice(); a[S.sp] = first ? 'r' : 'x'; mk.srm = a; } else { const a = (S.smark || []).slice(); a[S.sp] = first ? 'o' : 'x'; mk.smark = a; mk.sgot = (S.sgot || 0) + (first ? 1 : 0); } this.setState(mk); setTimeout(() => this.vocSpeak(it[2].join(this.sentDiff() === 'LH' ? '' : ' ')), 250); }
+hlSfx(k) { try { const P = window.parent; if (P && P !== window && P.__hlSfx) P.__hlSfx(k); } catch (e) {} }
+sentBad(key) { this.hlSfx('no'); const S = this.state || {}; this.setState({ sbad: (S.sbad || 0) + 1, sbadK: key + ':' + Date.now() }); }
 sentVals(ko, t, S, TS) {
 const df = this.sentDiff(); const D = this.sentData(df); const out = this.lsInt('yoolmi-fire-out'); const lvl = 0.08 + 0.92 * Math.pow(0.985, out); const used = this.lsInt('yoolmi-sent-d' + this.dayKey()); const left = Math.max(0, 3 - used);
 const FP = [[70, 132, 1.25], [150, 128, 1.5], [196, 140, 1.05], [252, 126, 1.35], [306, 136, 1.0], [24, 142, 0.9]];
@@ -474,7 +475,7 @@ if (!S.q || S.picked) return;
 const cls = this.cls();
 const m = this.loadM(cls);
 const key = S.q.item.k;
-const ok = k === 'A';
+const ok = k === 'A'; this.hlSfx(ok ? 'ok' : 'no');
 const before = m[key] || 0;
 m[key] = ok ? Math.min(3, before + 1) : 0;
 this.saveM(cls, m);
