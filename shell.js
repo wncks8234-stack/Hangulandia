@@ -64,8 +64,10 @@
     var pr = ari.play(); if (pr && pr.catch) pr.catch(function(){});
   }
   var ov = null, vid = null;
-  function introClose(){ if (!ov) return; ov.style.opacity = '0'; var o = ov; ov = null; setTimeout(function(){ try { vid.pause(); } catch(e){} o.remove(); }, 260); }
-  function introPlay(lang){
+  var onDone = null;
+  function introClose(){ if (!ov) return; ov.style.opacity = '0'; var o = ov; ov = null; setTimeout(function(){ try { vid.pause(); } catch(e){} o.remove(); }, 260); var cb = onDone; onDone = null; if (cb) { try { cb(); } catch(e){} } }
+  function introPlay(lang, opt){
+    opt = opt || {};
     if (ov) return;
     var es = lang === 'es';
     var music = isOn();
@@ -82,12 +84,21 @@
     x.style.cssText = 'position:absolute;top:calc(14px + env(safe-area-inset-top));right:14px;width:44px;height:44px;border-radius:50%;border:1.6px solid rgba(255,255,255,.85);background:rgba(30,20,14,.45);display:flex;align-items:center;justify-content:center;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)';
     x.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
     x.addEventListener('click', function(e){ e.stopPropagation(); introClose(); });
+    if (opt.closable === false) x.style.display = 'none';
+    onDone = opt.onDone || null;
+    var snd = document.createElement('button'); snd.type = 'button';
+    snd.style.cssText = 'position:absolute;left:50%;bottom:calc(28px + env(safe-area-inset-bottom));transform:translateX(-50%);display:none;align-items:center;gap:8px;min-height:44px;padding:0 18px;border-radius:999px;border:1.6px solid rgba(255,255,255,.85);background:rgba(30,20,14,.55);color:#fff;font:700 15px system-ui,sans-serif;cursor:pointer;-webkit-tap-highlight-color:transparent';
+    snd.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></svg>' + (es ? 'Activar sonido' : '소리 켜기');
+    snd.addEventListener('click', function(e){ e.stopPropagation(); vid.muted = false; snd.style.display = 'none'; if (music) { started = true; } if (music) ariPlay(vid.currentTime || 0); else { var q = vid.play(); if (q && q.catch) q.catch(function(){}); } });
     vid.addEventListener('ended', introClose);
     var started = false;
-    vid.addEventListener('playing', function(){ if (started || !music) return; started = true; ariPlay(vid.currentTime || 0); });
-    ov.appendChild(vid); ov.appendChild(x); document.body.appendChild(ov);
+    vid.addEventListener('playing', function(){ if (started || !music || vid.muted) return; started = true; ariPlay(vid.currentTime || 0); });
+    ov.appendChild(vid); ov.appendChild(x); ov.appendChild(snd); document.body.appendChild(ov);
     requestAnimationFrame(function(){ if (ov) ov.style.opacity = '1'; });
-    var pr = vid.play(); if (pr && pr.catch) pr.catch(function(){ /* blocked: user can tap */ });
+    var muteStart = function(){ vid.muted = true; snd.style.display = 'flex'; var q = vid.play(); if (q && q.catch) q.catch(function(){}); };
+    var unlocked = false; try { unlocked = !!(navigator.userActivation && navigator.userActivation.hasBeenActive); } catch(e){}
+    if (!unlocked && opt.auto) { muteStart(); }
+    else { var pr = vid.play(); if (pr && pr.catch) pr.catch(muteStart); }
     ov.addEventListener('click', function(){ if (vid.paused) { var q = vid.play(); if (q && q.catch) q.catch(function(){}); } });
   }
   W.__hlIntro = { play: introPlay, close: introClose, playing: function(){ return !!(ari && !ari.paused); } };
