@@ -107,6 +107,22 @@
   document.addEventListener('visibilitychange', function(){ if (!ac) return; try { if (document.hidden) { save(!!P); ac.suspend(); if (ari && !ari.paused) { ari.pause(); ari._resume = true; } } else if (isOn()) { ac.resume(); if (ari && ari._resume) { ari._resume = false; var q = ari.play(); if (q && q.catch) q.catch(function(){}); } } } catch(e){} });
   W.addEventListener('storage', function(e){ if (e && e.key === 'yoolmi-bgm') { if (e.newValue === '0') stop(); else start(); } });
   document.addEventListener('pointerdown', gesture);
+  /* tap sound (synthesised "tok" droplet), follows the music switch */
+  var tapBuf = null, tapLast = 0;
+  function tapMake(c){ var sr = c.sampleRate, d = 0.09, n = Math.floor(sr * (d + 0.03)), b = c.createBuffer(1, n, sr), x = b.getChannelData(0), ph = 0, pk = 0;
+    for (var i = 0; i < n; i++) { var t = i / sr; if (t < d) { var f = 1100 + (520 - 1100) * Math.pow(t / d, 0.6); ph += 2 * Math.PI * f / sr; x[i] = Math.sin(ph) * Math.min(1, t / 0.002) * Math.exp(-t / 0.022); } else x[i] = 0; if (Math.abs(x[i]) > pk) pk = Math.abs(x[i]); }
+    for (var j = 0; j < n; j++) x[j] = x[j] / pk * 0.45; return b; }
+  function tap(ev){
+    try {
+      if (!isOn()) return; var el = ev.target && ev.target.closest ? ev.target.closest('button,a[href],[role=button],[role=tab],[role=radio],[role=switch],summary') : null;
+      if (!el || el.disabled || el.getAttribute('aria-disabled') === 'true' || el.closest('[data-nosfx]')) return;
+      var now = Date.now(); if (now - tapLast < 45) return; tapLast = now;
+      var c = ctx(); if (!c) return; if (c.state === 'suspended') { try { c.resume(); } catch(e){} }
+      if (!tapBuf) tapBuf = tapMake(c); var s = c.createBufferSource(); s.buffer = tapBuf; s.connect(c.destination); s.start();
+    } catch(e){}
+  }
+  W.__hlTap = tap;
+  document.addEventListener('pointerdown', tap, true);
   /* warm up the decode early so the first screen starts quickly */
   var warm = function(){ if (isOn()) { try { load(); } catch(e){} } };
   try { if (navigator.serviceWorker && !navigator.serviceWorker.controller) navigator.serviceWorker.addEventListener('controllerchange', warm, { once: true }); else warm(); } catch(e){ warm(); }
@@ -128,6 +144,7 @@
       if (d && d.title) document.title = d.title;
       var w = document.querySelector('.w'); if (w) w.style.display = 'none';
       /* links that leave the site open at the top level instead of inside the frame */
+      d.addEventListener('pointerdown', tap, true);
       d.addEventListener('click', function(ev){
         var a = ev.target && ev.target.closest ? ev.target.closest('a[href]') : null; if (!a) return;
         var t = (a.getAttribute('target') || '').toLowerCase(); if (t && t !== '_self') return;
