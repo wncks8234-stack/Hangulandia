@@ -74,7 +74,7 @@ button[style*="border:1."]:not([disabled]),button[style*="border:2"]:not([disabl
 </div>
 <div style="flex:none;background:var(--th-nav,#F3FAF6);border-top:1.4px solid #8A766B;padding:9px 0 calc(12px + env(safe-area-inset-bottom))">
 <div class="ct-chips" role="group" aria-label="{{ t.chipsL }}" style="display:flex;gap:6px;overflow-x:auto;padding:0 12px 9px;-webkit-overflow-scrolling:touch"><sc-for list="{{ chips }}" as="c" hint-placeholder-count="4"><button type="button" onClick="{{ c.go }}" style="flex:none;min-height:36px;padding:0 13px;border-radius:999px;border:1.4px solid #8A766B;background:{{ c.bg }};font:inherit;font-weight:700;font-size:13.5px;line-height:1.3;color:#4A3A32;cursor:pointer;white-space:nowrap">{{ c.t }}</button></sc-for></div>
-<div style="display:flex;gap:8px;padding:0 12px"><input id="ct-in" type="text" autocomplete="off" enterkeyhint="send" value="{{ inVal }}" onChange="{{ inChange }}" onKeyDown="{{ inKey }}" placeholder="{{ r.ph }}" aria-label="{{ r.ph }}" style="flex:1;min-width:0;height:48px;box-sizing:border-box;border-radius:999px;border:1.5px solid #8A766B;padding:0 16px;font:inherit;font-size:16px;line-height:1.4;background:#fff;color:#4A3A32"><button type="button" onClick="{{ send }}" aria-label="{{ t.sendL }}" style="flex:none;width:48px;height:48px;border-radius:50%;border:1.5px solid #8A766B;background:{{ r.color }};display:flex;align-items:center;justify-content:center;padding:0;cursor:pointer;opacity:{{ sendOp }}"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#4A3A32" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l16-8-6 16-2.5-6.5z"></path><path d="M11.5 13.5L20 4"></path></svg></button></div>
+<sc-if value="{{ limOn }}" hint-placeholder-val="{{ false }}"><div role="status" style="margin:0 12px 7px;padding:4px 12px;border-radius:12px;background:#FFF1C4;border:1.2px solid #8A766B;font-size:12.5px;font-weight:700;line-height:1.4">{{ limT }}<span style="display:block;font-size:11px;color:#6B58B8">{{ limT2 }}</span></div></sc-if><div style="display:flex;gap:8px;padding:0 12px"><input id="ct-in" type="text" autocomplete="off" enterkeyhint="send" value="{{ inVal }}" onChange="{{ inChange }}" onKeyDown="{{ inKey }}" placeholder="{{ r.ph }}" aria-label="{{ r.ph }}" style="flex:1;min-width:0;height:48px;box-sizing:border-box;border-radius:999px;border:1.5px solid #8A766B;padding:0 16px;font:inherit;font-size:16px;line-height:1.4;background:#fff;color:#4A3A32"><button type="button" onClick="{{ send }}" aria-label="{{ t.sendL }}" style="flex:none;width:48px;height:48px;border-radius:50%;border:1.5px solid #8A766B;background:{{ r.color }};display:flex;align-items:center;justify-content:center;padding:0;cursor:pointer;opacity:{{ sendOp }}"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#4A3A32" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l16-8-6 16-2.5-6.5z"></path><path d="M11.5 13.5L20 4"></path></svg></button></div>
 </div>
 </sc-if>
 </div>
@@ -111,13 +111,13 @@ ctDecomp(w) {
   const parts = []; const cs = w.split('');
   if (cs.every((c) => !this.hgIs(c))) {
     parts.push({ k: 't', ko: '자모 하나하나를 알려 줄게요.', es: 'Te explico cada letra.' });
-    parts.push({ k: 'rows', ko: '글자 정보', es: 'Datos de la letra', rows: cs.slice(0, 8).map((c) => { if (CN[c]) return { a: c, b: c, kr: CN[c][0], rom: this.ctRom(CN[c][0]), es: 'Consonante · sonido ' + CN[c][1], ko: '' }; if (VN[c]) return { a: c, b: c, kr: '', rom: '', ko: '모음 · 소리 ' + VN[c].split(' ')[0], es: 'Vocal · sonido ' + VN[c] }; return { a: c, b: c, kr: '', rom: '', ko: '받침에서만 쓰는 겹받침이에요.', es: 'Batchim doble: solo va abajo.' }; }) });
+    parts.push({ k: 'rows', ko: '글자 정보', es: 'Datos de la letra', rows: cs.slice(0, 9).map((c) => { if (CN[c]) return { a: c, b: c, kr: CN[c][0], rom: this.ctRom(CN[c][0]), es: 'Consonante · sonido ' + CN[c][1], ko: '' }; if (VN[c]) return { a: c, b: c, kr: '', rom: '', ko: '모음 · 소리 ' + VN[c].split(' ')[0], es: 'Vocal · sonido ' + VN[c] }; return { a: c, b: c, kr: '', rom: '', ko: '받침에서만 쓰는 겹받침이에요.', es: 'Batchim doble: solo va abajo.' }; }) });
     const v0 = cs.find((c) => VN[c]); const c0 = cs.find((c) => CHOJ.indexOf(c) >= 0);
     if (c0 && v0) { const s = this.hgCmp(CHOJ.indexOf(c0), JUJ.indexOf(v0), 0); parts.push({ k: 't', ko: c0 + ' + ' + v0 + ' = ' + s, es: c0 + ' + ' + v0 + ' = ' + s }); parts.push({ k: 'ex', kr: s, rom: this.ctRom(s), es: 'Sílaba que se forma' }); }
     else parts.push({ k: 'tip', ko: '자음은 모음과 만나야 소리가 나요. 예를 들어 ㄱ + ㅏ = 가.', es: 'Una consonante necesita una vocal para sonar: ㄱ + ㅏ = 가.' });
     return parts;
   }
-  const sy = cs.filter((c) => this.hgIs(c)).slice(0, 8);
+  const sy = cs.filter((c) => this.hgIs(c)).slice(0, 9);
   parts.push({ k: 't', ko: '「' + sy.join('') + '」' + (this.hgDec(sy[sy.length - 1])[2] ? '을' : '를') + ' 자음과 모음으로 나눠 볼게요.', es: 'Vamos a separar «' + sy.join('') + '» en consonantes y vocales.' });
   let hasB = false, hasLink = false;
   const rows = sy.map((c, i) => {
@@ -224,7 +224,7 @@ ctFlush() { clearTimeout(this._qt); const q = this._q || []; const o = this.ctLo
 ctBusy() { return !!this._qRun; }
 ctOpen(b, noHist) {
   const o = this.ctLoad(); const D = this.chatData()[b];
-  this._room = b; this.setState({ room: b, inVal: '', clrOn: false, typing: null });
+  this._room = b; this.setState({ room: b, inVal: '', clrOn: false, typing: null, ctLim: false });
   if (!noHist) { try { window.history.pushState({ ct: b }, '', '#' + b); this._pushed = true; } catch (e) {} }
   if (!o[b].m.length) { o[b].seen = 0; this.ctSave(); this.ctSay(b, D.greet, D.start); } else { o[b].seen = o[b].m.length; this.ctSave(); }
   this.ctScroll();
@@ -264,20 +264,22 @@ ctPick(b, mi, oi) {
   this.ctSay(b, [head, { k: 'tip', ko: qz.ex[0], es: qz.ex[1] }], ['__quiz', '__all']);
 }
 ctClear(b) { this.ctFlush(); const o = this.ctLoad(); o[b] = { m: [], seen: 0, chips: null, qh: [] }; this.ctSave(); this.setState({ clrOn: false }); const D = this.chatData()[b]; this.ctSay(b, D.greet, D.start); }
+ctHgN(s) { return (String(s || '').match(/[가-힣ㄱ-ㅣ]/g) || []).length; }
+ctHgCap(s, n) { let k = 0, o = ''; for (const ch of String(s || '')) { if (/[가-힣ㄱ-ㅣ]/.test(ch)) { if (k >= n) continue; k++; } o += ch; } return o; }
 ctNorm(s) { return String(s || '').toLowerCase().normalize('NFC').replace(/[¿?¡!.,~]/g, ' ').replace(/\s+/g, ' ').trim(); }
 ctMatch(b, txt) { const D = this.chatData()[b]; const t1 = this.ctNorm(txt); const t2 = t1.replace(/ /g, ''); let best = null, bs = 0; D.order.forEach((id) => { const tp = D.topics[id]; let s = 0; (tp.kw || []).forEach((k) => { const k1 = this.ctNorm(k); if (!k1) return; if (t1.indexOf(k1) >= 0 || t2.indexOf(k1.replace(/ /g, '')) >= 0) s += k1.length; }); if (s > bs) { bs = s; best = id; } }); return bs >= 2 ? best : null; }
 ctSend() {
   const S = this.state || {}; const b = S.room; if (!b) return; let v = '';
   try { const el = document.getElementById('ct-in'); if (el) v = el.value; } catch (e) {}
-  v = String(v || S.inVal || '').trim(); if (!v || this.ctBusy()) return;
+  v = String(v || S.inVal || '').trim(); if (!v || this.ctBusy()) return; if (b === 'so' && this.ctHgN(v) > 9) { this.setState({ ctLim: true }); return; }
   try { const el = document.getElementById('ct-in'); if (el) el.value = ''; } catch (e) {}
-  this.setState({ inVal: '' });
+  this.setState({ inVal: '', ctLim: false });
   this.ctPush(b, { r: 'u', txt: v.slice(0, 200) });
   const D = this.chatData()[b];
   if (b === 'da') { const w = v.replace(/\s+/g, ''); if (/^[가-힣]{1,6}다$/.test(w) && w !== '바다') { this.ctSay(b, this.ctConj(w), ['present', 'past', 'future', '__all']); return; } }
   const hit = this.ctMatch(b, v);
   if (hit) { this.ctAnswer(b, hit); return; }
-  if (b === 'so') { const h = v.replace(/\s+/g, ''); if (/^[가-힣ㄱ-ㅣ]{1,8}$/.test(h)) { this.ctSay(b, this.ctDecomp(h), ['batchim', 'link', 'comp', '__all']); return; } }
+  if (b === 'so') { const h = v.replace(/\s+/g, ''); if (/^[가-힣ㄱ-ㅣ]{1,9}$/.test(h)) { this.ctSay(b, this.ctDecomp(h), ['batchim', 'link', 'comp', '__all']); return; } }
   if (b === 'da' && /[가-힣]/.test(v)) { const w = v.match(/[가-힣]{1,6}다(?![가-힣])/); if (w && w[0] !== '바다') { this.ctSay(b, this.ctConj(w[0]), ['present', 'past', 'future', '__all']); return; } }
   const nm = { ym: ['율미쌤', 'la profe Yoolmi'], da: ['다니엘', 'Daniel'], so: ['소피아', 'Sofía'], to: ['토순이', 'Tosuni'] };
   for (const ob of ['ym', 'da', 'so', 'to']) { if (ob === b) continue; const h2 = this.ctMatch(ob, v); if (h2) { this.ctSay(b, [{ k: 't', ko: '그건 ' + nm[ob][0] + '에게 물어보면 더 잘 알려 줄 거예요.', es: nm[ob][1] + ' te lo puede explicar mejor.' }, { k: 'link', to: 'bot:' + ob + ':' + h2, ko: nm[ob][0] + '와 대화하기', es: 'Hablar con ' + nm[ob][1] }], D.fallnext.concat(['__all'])); return; } }
@@ -343,7 +345,7 @@ if (rid) {
   const SP = { __all: ['다른 질문', 'Más preguntas'] };
   chips = cl.filter((c) => SP[c] || RD.topics[c]).map((c) => ({ t: SP[c] ? L(SP[c]) : L(RD.topics[c].q), bg: c === '__quiz' || (RD.topics[c] && RD.topics[c].quiz) ? r.color : (c === '__all' ? '#F3EEE7' : '#FFFFFF'), go: () => this.ctAsk(rid, c) }));
 }
-return { lang: lang, t: t, listOn: !rid, roomOn: !!rid, rootBg: rid ? r.tint : 'var(--th-bg,#CDE8E0)', bots: bots, sns: sns, hpHref: hpOn ? hp : '#', hpOff: hpOn ? 'false' : 'true', hpOp: hpOn ? 1 : 0.55, hpGo: (e) => { if (!hpOn && e && e.preventDefault) e.preventDefault(); }, r: r, msgs: msgs, chips: chips, typingOn: !!rid && S.typing === rid, back: () => this.ctBack(), clrAsk: () => this.setState({ clrOn: !S.clrOn }), clrNo: () => this.setState({ clrOn: false }), clrGo: () => this.ctClear(rid), inVal: S.inVal || '', inChange: (e) => this.setState({ inVal: e && e.target ? e.target.value : '' }), inKey: (e) => { if (!e) return; if (e.isComposing || e.keyCode === 229) return; if (e.key === 'Enter') { if (e.preventDefault) e.preventDefault(); this.ctSend(); } }, send: () => this.ctSend(), sendOp: (S.inVal || '').trim() ? 1 : 0.6 };
+return { lang: lang, t: t, listOn: !rid, roomOn: !!rid, rootBg: rid ? r.tint : 'var(--th-bg,#CDE8E0)', bots: bots, sns: sns, hpHref: hpOn ? hp : '#', hpOff: hpOn ? 'false' : 'true', hpOp: hpOn ? 1 : 0.55, hpGo: (e) => { if (!hpOn && e && e.preventDefault) e.preventDefault(); }, r: r, msgs: msgs, chips: chips, typingOn: !!rid && S.typing === rid, back: () => this.ctBack(), clrAsk: () => this.setState({ clrOn: !S.clrOn }), clrNo: () => this.setState({ clrOn: false }), clrGo: () => this.ctClear(rid), inVal: S.inVal || '', inChange: (e) => { let v = e && e.target ? e.target.value : ''; let lim = false; if (rid === 'so') { const r2 = this.ctHgCap(v, 9); if (r2 !== v) { lim = true; v = r2; try { if (e.target && !e.isComposing) e.target.value = v; } catch (x) {} } else if (this.ctHgN(v) >= 9) lim = true; } this.setState({ inVal: v, ctLim: lim }); }, inKey: (e) => { if (!e) return; if (e.isComposing || e.keyCode === 229) return; if (e.key === 'Enter') { if (e.preventDefault) e.preventDefault(); this.ctSend(); } }, send: () => this.ctSend(), limOn: rid === 'so' && !!S.ctLim, limT: L(['한글은 9글자까지만 쓸 수 있어요.', 'Puedes escribir hasta 9 letras en coreano.']), limT2: L2(['한글은 9글자까지만 쓸 수 있어요.', 'Puedes escribir hasta 9 letras en coreano.']), sendOp: (S.inVal || '').trim() ? 1 : 0.6 };
 }
 }
 </script>
