@@ -1,5 +1,6 @@
 /* Hangulandia: "install as app" guide for browser visitors */
 (function(){
+  if (window.top !== window) return;
   /* Samsung Internet ignores every page-side dark-mode opt-out, so guide the user instead */
   try {
     var sua = navigator.userAgent || '';
