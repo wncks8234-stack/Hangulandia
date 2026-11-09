@@ -108,13 +108,14 @@
   W.addEventListener('storage', function(e){ if (e && e.key === 'yoolmi-bgm') { if (e.newValue === '0') stop(); else start(); } });
   document.addEventListener('pointerdown', gesture);
   /* tap sound (synthesised "tok" droplet), follows the music switch */
+  var sfxOn = function(){ try { return LS.getItem('yoolmi-sfx') !== '0'; } catch(e){ return true; } };
   var tapBuf = null, tapLast = 0;
   function tapMake(c){ var sr = c.sampleRate, d = 0.09, n = Math.floor(sr * (d + 0.03)), b = c.createBuffer(1, n, sr), x = b.getChannelData(0), ph = 0, pk = 0;
     for (var i = 0; i < n; i++) { var t = i / sr; if (t < d) { var f = 1100 + (520 - 1100) * Math.pow(t / d, 0.6); ph += 2 * Math.PI * f / sr; x[i] = Math.sin(ph) * Math.min(1, t / 0.002) * Math.exp(-t / 0.022); } else x[i] = 0; if (Math.abs(x[i]) > pk) pk = Math.abs(x[i]); }
     for (var j = 0; j < n; j++) x[j] = x[j] / pk * 0.45; return b; }
   function tap(ev){
     try {
-      if (!isOn()) return; var el = ev.target && ev.target.closest ? ev.target.closest('button,a[href],[role=button],[role=tab],[role=radio],[role=switch],summary') : null;
+      if (!sfxOn()) return; var el = ev.target && ev.target.closest ? ev.target.closest('button,a[href],[role=button],[role=tab],[role=radio],[role=switch],summary') : null;
       if (!el || el.disabled || el.getAttribute('aria-disabled') === 'true' || el.closest('[data-nosfx]')) return;
       var now = Date.now(); if (now - tapLast < 45) return; tapLast = now;
       var c = ctx(); if (!c) return; if (c.state === 'suspended') { try { c.resume(); } catch(e){} }
@@ -129,7 +130,7 @@
       for (i = 0; i < n; i++) { t = i / sr; var v = 0; for (var q = 0; q < 3; q++) { var u = t - NT[q][0]; if (u < 0) continue; var f = NT[q][1], e = Math.min(1, u / 0.003) * Math.exp(-u / NT[q][2]); v += e * (Math.sin(2 * Math.PI * f * u) + 0.3 * Math.sin(2 * Math.PI * f * 4 * u) + 0.12 * Math.sin(2 * Math.PI * f * 2.76 * u)); } x[i] = v; }
     } else { var ph = 0; for (i = 0; i < n; i++) { t = i / sr; var f2 = 420 - 170 * Math.min(1, t / 0.32); ph += 2 * Math.PI * f2 / sr; x[i] = t < 0.32 ? Math.sin(ph) * Math.min(1, t / 0.01) * Math.exp(-t / 0.14) * (1 + 0.25 * Math.sin(2 * Math.PI * 14 * t)) : 0; } }
     for (i = 0; i < n; i++) if (Math.abs(x[i]) > pk) pk = Math.abs(x[i]); for (i = 0; i < n; i++) x[i] = x[i] / pk * 0.5; return b; }
-  W.__hlSfx = function(k){ try { if (!isOn()) return; var c = ctx(); if (!c) return; if (c.state === 'suspended') { try { c.resume(); } catch(e){} } k = k === 'ok' ? 'ok' : 'no'; if (!fxBuf[k]) fxBuf[k] = fxMake(c, k); var s = c.createBufferSource(); s.buffer = fxBuf[k]; s.connect(c.destination); s.start(c.currentTime + 0.03); } catch(e){} };
+  W.__hlSfx = function(k){ try { if (!sfxOn()) return; var c = ctx(); if (!c) return; if (c.state === 'suspended') { try { c.resume(); } catch(e){} } k = k === 'ok' ? 'ok' : 'no'; if (!fxBuf[k]) fxBuf[k] = fxMake(c, k); var s = c.createBufferSource(); s.buffer = fxBuf[k]; s.connect(c.destination); s.start(c.currentTime + 0.03); } catch(e){} };
   document.addEventListener('pointerdown', tap, true);
   /* warm up the decode early so the first screen starts quickly */
   var warm = function(){ if (isOn()) { try { load(); } catch(e){} } };
