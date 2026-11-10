@@ -1,3 +1,18 @@
+
+/* no pinch / double-tap / ctrl-wheel zoom anywhere in the app */
+function noZoom(doc){
+  try {
+    var pv = function(e){ e.preventDefault(); };
+    doc.addEventListener('gesturestart', pv, {passive:false});
+    doc.addEventListener('gesturechange', pv, {passive:false});
+    doc.addEventListener('gestureend', pv, {passive:false});
+    doc.addEventListener('touchmove', function(e){ if (e.touches && e.touches.length > 1) e.preventDefault(); }, {passive:false});
+    doc.addEventListener('wheel', function(e){ if (e.ctrlKey) e.preventDefault(); }, {passive:false});
+    var st = doc.createElement('style'); st.textContent = 'html,body{touch-action:manipulation;-webkit-text-size-adjust:100%;text-size-adjust:100%}';
+    (doc.head || doc.documentElement).appendChild(st);
+  } catch(e){}
+}
+noZoom(document);
 /* Hangulandia shell: keeps one persistent document so background music never restarts between screens */
 (function(){
   var W = window, LS = W.localStorage;
@@ -158,6 +173,7 @@
       /* links that leave the site open at the top level instead of inside the frame */
       d.addEventListener('pointerdown', tap, true);
       d.addEventListener('pointerdown', gesture, true);
+      noZoom(d);
       d.addEventListener('click', function(ev){
         var a = ev.target && ev.target.closest ? ev.target.closest('a[href]') : null; if (!a) return;
         var t = (a.getAttribute('target') || '').toLowerCase(); if (t && t !== '_self') return;
