@@ -106,15 +106,26 @@ noZoom(document);
     snd.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></svg>' + (es ? 'Activar sonido' : '소리 켜기');
     snd.addEventListener('click', function(e){ e.stopPropagation(); vid.muted = false; snd.style.display = 'none'; if (music) { started = true; } if (music) ariPlay(vid.currentTime || 0); else { var q = vid.play(); if (q && q.catch) q.catch(function(){}); } });
     vid.addEventListener('ended', introClose);
-    var started = false;
-    vid.addEventListener('playing', function(){ if (started || !music || vid.muted) return; started = true; ariPlay(vid.currentTime || 0); });
+    var started = false, held = false, firstChk = false, t0 = Date.now();
+    /* start only once a few seconds are buffered, so the first seconds never stutter */
+    var buf = function(){ try { if (vid.readyState >= 4) return true; var r = vid.buffered; if (!r.length) return false; var need = Math.min(8, (vid.duration || 8) - 0.1); return r.end(r.length - 1) - (vid.currentTime || 0) >= need; } catch(e){ return true; } };
+    var hold = function(){ held = true; try { vid.pause(); vid.currentTime = 0; } catch(e){} var iv = setInterval(function(){ if (!ov) { clearInterval(iv); return; } if (buf() || Date.now() - t0 > 8000) { clearInterval(iv); held = false; var q = vid.play(); if (q && q.catch) q.catch(function(){}); } }, 150); };
+    vid.addEventListener('playing', function(){
+      if (!firstChk) { firstChk = true; if (!buf()) { hold(); return; } }
+      if (held) return;
+      if (!music || vid.muted) return;
+      if (!started) { started = true; ariPlay(vid.currentTime || 0); return; }
+      if (ari && ari.paused) ariPlay(vid.currentTime || 0);
+    });
+    /* if the video ever has to wait for data, the music waits with it */
+    vid.addEventListener('waiting', function(){ if (started && ari && !ari.paused) { try { ari.pause(); } catch(e){} } });
     ov.appendChild(vid); ov.appendChild(x); ov.appendChild(snd); document.body.appendChild(ov);
     requestAnimationFrame(function(){ if (ov) ov.style.opacity = '1'; });
     var muteStart = function(){ vid.muted = true; snd.style.display = 'flex'; var q = vid.play(); if (q && q.catch) q.catch(function(){}); };
     var unlocked = false; try { unlocked = !!(navigator.userActivation && navigator.userActivation.hasBeenActive); } catch(e){}
     if (!unlocked && opt.auto) { muteStart(); }
     else { var pr = vid.play(); if (pr && pr.catch) pr.catch(muteStart); }
-    ov.addEventListener('click', function(){ if (vid.paused) { var q = vid.play(); if (q && q.catch) q.catch(function(){}); } });
+    ov.addEventListener('click', function(){ if (vid.paused && !held) { var q = vid.play(); if (q && q.catch) q.catch(function(){}); } });
   }
   W.__hlIntro = { play: introPlay, close: introClose, playing: function(){ return !!(ari && !ari.paused); } };
   W.__hlBgm = { start: start, stop: stop, gesture: gesture, isOn: isOn, playing: function(){ return !!P || !!(ari && !ari.paused); } };
