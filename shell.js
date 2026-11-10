@@ -136,6 +136,9 @@
   var warm = function(){ if (isOn()) { try { load(); } catch(e){} } };
   try { if (navigator.serviceWorker && !navigator.serviceWorker.controller) navigator.serviceWorker.addEventListener('controllerchange', warm, { once: true }); else warm(); } catch(e){ warm(); }
 
+
+  /* study reminder while the app is open or in the background (needs notification permission) */
+  (function(){ function due(){ try { if (LS.getItem('yoolmi-rm-on') !== '1') return; if (!W.Notification || Notification.permission !== 'granted') return; var t = String(LS.getItem('yoolmi-rm-t') || '19').split(':'); var h = +t[0], m = +(t[1] || 0); var d = new Date(); var day = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); if (LS.getItem('yoolmi-rm-last') === day) return; var now = d.getHours() * 60 + d.getMinutes(), at = h * 60 + m; if (now < at || now > at + 30) return; LS.setItem('yoolmi-rm-last', day); var es = LS.getItem('yoolmi-lang') === 'es'; var ti = es ? '¡Hora de estudiar coreano!' : '한국어 공부할 시간이에요!', bo = es ? 'Tosuni te espera en 한글 나라.' : '토순이가 한글 나라에서 기다리고 있어요.'; navigator.serviceWorker && navigator.serviceWorker.getRegistration ? navigator.serviceWorker.getRegistration().then(function(r){ if (r && r.showNotification) r.showNotification(ti, { body: bo, icon: 'icon-192.png', badge: 'icon-192.png', tag: 'hl-study' }); else new Notification(ti, { body: bo }); }) : new Notification(ti, { body: bo }); } catch(e){} } setInterval(due, 30000); setTimeout(due, 4000); })();
   /* frame management */
   var f = document.getElementById('hl-f');
   W.__hlShow = function(src){

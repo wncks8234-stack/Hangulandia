@@ -16,3 +16,5 @@ self.addEventListener('fetch',e=>{const u=new URL(e.request.url);if(u.origin!==l
   if(hit){e.waitUntil(net);const quick=await Promise.race([net,new Promise(r=>setTimeout(()=>r(null),1800))]);return quick||hit;}
   const r=await net;return r||(await p.match(B+'Main.dc.html'))||new Response('',{status:504});})());}
 });
+
+self.addEventListener('notificationclick',function(e){e.notification.close();e.waitUntil(self.clients.matchAll({type:'window',includeUncontrolled:true}).then(function(cs){for(var i=0;i<cs.length;i++){if('focus' in cs[i])return cs[i].focus();}if(self.clients.openWindow)return self.clients.openWindow('./');}));});
