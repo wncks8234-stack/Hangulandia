@@ -65,7 +65,7 @@
   }
   var ov = null, vid = null;
   var onDone = null;
-  function introClose(){ if (!ov) return; ov.style.opacity = '0'; var o = ov; ov = null; setTimeout(function(){ try { vid.pause(); } catch(e){} o.remove(); }, 260); var cb = onDone; onDone = null; if (cb) { try { cb(); } catch(e){} } }
+  function introClose(){ if (!ov) return; ov.style.opacity = '0'; var o = ov; ov = null; setTimeout(function(){ try { vid.pause(); } catch(e){} o.remove(); }, 260); var cb = onDone; onDone = null; if (cb) { try { cb(); } catch(e){} } if (ari && !ari.paused) { ariStop(); setTimeout(function(){ if (isOn()) start(); }, 700); } }
   function introPlay(lang, opt){
     opt = opt || {};
     if (ov) return;
@@ -154,6 +154,7 @@
       var w = document.querySelector('.w'); if (w) w.style.display = 'none';
       /* links that leave the site open at the top level instead of inside the frame */
       d.addEventListener('pointerdown', tap, true);
+      d.addEventListener('pointerdown', gesture, true);
       d.addEventListener('click', function(ev){
         var a = ev.target && ev.target.closest ? ev.target.closest('a[href]') : null; if (!a) return;
         var t = (a.getAttribute('target') || '').toLowerCase(); if (t && t !== '_self') return;
