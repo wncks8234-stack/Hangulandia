@@ -128,6 +128,17 @@ noZoom(document);
     ov.addEventListener('click', function(){ if (vid.paused && !held) { var q = vid.play(); if (q && q.catch) q.catch(function(){}); } });
   }
   W.__hlIntro = { play: introPlay, close: introClose, playing: function(){ return !!(ari && !ari.paused); } };
+  /* first launch as an installed app: show the intro video once */
+  try {
+    var standalone = (W.matchMedia && W.matchMedia('(display-mode: standalone)').matches) || W.navigator.standalone === true;
+    if (standalone && !localStorage.getItem('hl-inst-intro')) {
+      localStorage.setItem('hl-inst-intro', '1');
+      /* brand-new users get the intro from the first-run story anyway; here we cover people who already saw it in the browser */
+      if (localStorage.getItem('yoolmi-intro') === 'seen' || localStorage.getItem('yoolmi-story') === 'done') {
+        setTimeout(function(){ try { introPlay(localStorage.getItem('yoolmi-lang') === 'es' ? 'es' : 'ko', { auto: true }); } catch(e){} }, 900);
+      }
+    }
+  } catch(e){}
   W.__hlBgm = { start: start, stop: stop, gesture: gesture, isOn: isOn, playing: function(){ return !!P || !!(ari && !ari.paused); } };
   W.addEventListener('pagehide', function(){ save(!!P); });
   document.addEventListener('visibilitychange', function(){ if (!ac) return; try { if (document.hidden) { save(!!P); ac.suspend(); if (ari && !ari.paused) { ari.pause(); ari._resume = true; } } else if (isOn()) { ac.resume(); if (ari && ari._resume) { ari._resume = false; var q = ari.play(); if (q && q.catch) q.catch(function(){}); } } } catch(e){} });
