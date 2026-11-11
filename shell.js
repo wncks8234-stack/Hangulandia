@@ -95,7 +95,7 @@ noZoom(document);
     ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', es ? 'Historia de 한글 나라' : '한글 나라 이야기');
     ov.style.cssText = 'position:fixed;inset:0;z-index:2147483000;background:#000;opacity:0;transition:opacity .25s ease;display:flex;align-items:center;justify-content:center';
     vid = document.createElement('video');
-    vid.src = music ? 'media/intro3-sfx.mp4' : 'media/intro3.mp4'; vid.poster = 'media/intro2-poster.jpg';
+    vid.src = music ? 'media/intro3-sfx.mp4?v=2' : 'media/intro3.mp4?v=2'; vid.poster = 'media/intro2-poster.jpg';
     vid.playsInline = true; vid.setAttribute('playsinline', ''); vid.setAttribute('webkit-playsinline', ''); vid.autoplay = !(+opt.pre > 0); vid.preload = 'auto';
     vid.style.cssText = 'position:relative;z-index:1;width:100%;height:100%;object-fit:contain;background:transparent';
     /* plain black bars above and below the 9:16 video; the status bar goes black too and comes back when the intro closes */
