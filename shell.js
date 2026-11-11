@@ -221,7 +221,8 @@ noZoom(document);
   W.__hlSfx = function(k){ try { if (!sfxOn()) return; var c = ctx(); if (!c) return; if (c.state === 'suspended') { try { c.resume(); } catch(e){} } k = k === 'ok' ? 'ok' : 'no'; if (!fxBuf[k]) fxBuf[k] = fxMake(c, k); var s = c.createBufferSource(); s.buffer = fxBuf[k]; s.connect(c.destination); s.start(c.currentTime + 0.03); } catch(e){} };
   document.addEventListener('pointerdown', tap, true);
   /* warm up the decode early so the first screen starts quickly */
-  var warm = function(){ if (isOn()) { try { load(); } catch(e){} } };
+  /* but never while the loading screen animates: decoding the music blocks the page for a moment */
+  var warm = function(){ if (document.getElementById('hl-sp')) { setTimeout(warm, 400); return; } if (isOn()) { try { load(); } catch(e){} } };
   try { if (navigator.serviceWorker && !navigator.serviceWorker.controller) navigator.serviceWorker.addEventListener('controllerchange', warm, { once: true }); else warm(); } catch(e){ warm(); }
 
 
