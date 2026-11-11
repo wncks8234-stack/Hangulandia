@@ -26,12 +26,13 @@
   if (standalone) return;
   var ls = function(k, v){ try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch(e){ return null; } };
   var until = +(ls('hl-inst-hide') || 0);
-  if (Date.now() < until) return;
+  if (Date.now() < until && !/[?&]install=1/.test(location.search)) return;
   var ko = (ls('yoolmi-lang') || '') === 'ko';
   var ua = navigator.userAgent || '';
   var ios = /iPhone|iPad|iPod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   var iosSafari = ios && /Safari/i.test(ua) && !/CriOS|FxiOS|EdgiOS|KAKAOTALK|Instagram|FBAN|FBAV|Line/i.test(ua);
   var inApp = /KAKAOTALK|Instagram|FBAN|FBAV|Line|WhatsApp/i.test(ua);
+  var sam = /SamsungBrowser/i.test(ua);
   var deferred = null;
   var T = ko ? {
     title: '한글 나라를 앱으로 설치해요',
@@ -41,6 +42,7 @@
     iosOther: '사파리(Safari)로 이 주소를 열어 주세요. 아이폰은 사파리에서만 설치할 수 있어요.',
     inapp: '오른쪽 위 메뉴에서 ‘다른 브라우저로 열기’(크롬/사파리)를 누른 뒤 설치해 주세요.',
     and1: '오른쪽 위 ⋮ 메뉴를 눌러요', and2: '‘앱 설치’ 또는 ‘홈 화면에 추가’를 눌러요',
+    sam1: '오른쪽 아래 ≡ 메뉴를 눌러요', sam2: '‘페이지 추가’(또는 ‘현재 페이지 추가’)를 눌러요', sam3: '‘홈 화면’을 고르면 끝!', chrome: '크롬으로 열어 설치하기',
     done: '설치가 시작됐어요! 홈 화면의 토순이 아이콘으로 열어 주세요.'
   } : {
     title: 'Instala 한글 나라 como app',
@@ -50,6 +52,7 @@
     iosOther: 'Abre esta dirección en Safari. En iPhone solo se puede instalar desde Safari.',
     inapp: 'Toca el menú arriba a la derecha y elige “Abrir en el navegador” (Chrome/Safari) para instalar.',
     and1: 'Toca el menú ⋮ arriba a la derecha', and2: 'Toca “Instalar app” o “Agregar a inicio”',
+    sam1: 'Toca el menú ≡ abajo a la derecha', sam2: 'Toca “Agregar página” (o “Agregar página actual”)', sam3: 'Elige “Pantalla de inicio”. ¡Listo!', chrome: 'Abrir en Chrome para instalar',
     done: '¡Instalación iniciada! Abre la app con el ícono de Tosuni.'
   };
   var css = '#hl-inst{color-scheme:only light;position:fixed;left:0;right:0;bottom:0;z-index:2147483000;display:flex;justify-content:center;padding:0 10px calc(10px + env(safe-area-inset-bottom));pointer-events:none;font-family:"Yoolmi Hand","Fredoka","Noto Sans KR",sans-serif;color:#4A3A32}'+
@@ -61,7 +64,7 @@
   '#hl-inst li b{flex:none;width:24px;height:24px;border-radius:50%;background:#FADB7A;border:1.3px solid #8A766B;display:flex;align-items:center;justify-content:center;font-size:13px}'+
   '#hl-inst li svg{flex:none}#hl-inst .note{margin-top:10px;font-size:13px;font-weight:700;background:#FFF1C4;border-radius:12px;padding:8px 10px;line-height:1.4}'+
   '#hl-inst .bt{display:flex;gap:8px;margin-top:12px}#hl-inst button{font:inherit;font-weight:700;font-size:15px;color:#4A3A32;border-radius:999px;border:1.5px solid #8A766B;min-height:46px;cursor:pointer}'+
-  '#hl-inst .go{flex:1.6;background:#9CD3A6}#hl-inst .no{flex:1;background:#fff}'+
+  '#hl-inst a.go{display:flex;align-items:center;justify-content:center;text-align:center;font-weight:700;font-size:14px;line-height:1.2;color:#4A3A32;text-decoration:none;border-radius:999px;border:1.5px solid #8A766B;min-height:46px;padding:0 10px}#hl-inst .go{flex:1.6;background:#9CD3A6}#hl-inst .no{flex:1;background:#fff}'+
   '#hl-inst .arrow{position:fixed;left:50%;bottom:calc(4px + env(safe-area-inset-bottom));transform:translateX(-50%);width:0;height:0;border-left:12px solid transparent;border-right:12px solid transparent;border-top:14px solid #8A766B;display:none}';
   var shareIc = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3E6FB0" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 8l5-5 5 5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>';
   var plusIc = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4A3A32" stroke-width="2.2" stroke-linecap="round"><rect x="3.5" y="3.5" width="17" height="17" rx="4"/><path d="M12 8v8M8 12h8"/></svg>';
@@ -77,9 +80,10 @@
     else if (inApp) body = '<div class="note">'+T.inapp+'</div>';
     else if (iosSafari) body = '<ol><li><b>1</b>'+shareIc+T.ios1+'</li><li><b>2</b>'+plusIc+T.ios2+'</li><li><b>3</b>'+T.ios3+'</li></ol>';
     else if (ios) body = '<div class="note">'+T.iosOther+'</div>';
+    else if (sam) body = '<ol><li><b>1</b>'+T.sam1+'</li><li><b>2</b>'+plusIc+T.sam2+'</li><li><b>3</b>'+T.sam3+'</li></ol>';
     else body = '<ol><li><b>1</b>'+T.and1+'</li><li><b>2</b>'+T.and2+'</li></ol>';
     el.innerHTML = '<div class="c"><div class="h"><img src="icon-192.png" alt=""><div><div class="t">'+T.title+'</div><div class="s">'+T.sub+'</div></div></div>'+body+
-      '<div class="bt">'+(deferred?'<button type="button" class="go">'+T.btn+'</button>':'')+'<button type="button" class="no">'+T.later+'</button></div></div>'+(iosSafari?'<i class="arrow"></i>':'');
+      '<div class="bt">'+(deferred?'<button type="button" class="go">'+T.btn+'</button>':(sam?'<a class="go" href="intent://'+location.host+location.pathname+'#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url='+encodeURIComponent(location.href)+';end">'+T.chrome+'</a>':''))+'<button type="button" class="no">'+T.later+'</button></div></div>'+(iosSafari?'<i class="arrow"></i>':'');
     document.body.appendChild(el);
     if (iosSafari) el.querySelector('.arrow').style.display = 'block';
     el.querySelector('.no').onclick = function(){ hide(3); };
