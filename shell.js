@@ -93,7 +93,15 @@ noZoom(document);
     vid = document.createElement('video');
     vid.src = music ? 'media/intro3-sfx.mp4' : 'media/intro3.mp4'; vid.poster = 'media/intro2-poster.jpg';
     vid.playsInline = true; vid.setAttribute('playsinline', ''); vid.setAttribute('webkit-playsinline', ''); vid.autoplay = true; vid.preload = 'auto';
-    vid.style.cssText = 'width:100%;height:100%;object-fit:contain;background:#000';
+    vid.style.cssText = 'position:relative;z-index:1;width:100%;height:100%;object-fit:contain;background:transparent';
+    /* fill the bars above and below the 9:16 video with a soft blurred copy of it, and tint the status bar to match */
+    var bd = document.createElement('canvas'); bd.setAttribute('aria-hidden', 'true'); bd.width = 40; bd.height = Math.max(40, Math.round(40 * (W.innerHeight || 844) / (W.innerWidth || 390)));
+    bd.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;filter:blur(14px) brightness(.95);transform:scale(1.15);pointer-events:none';
+    (function(o){ var g = bd.getContext('2d', { willReadFrequently: true }), tc = document.querySelector('meta[name=theme-color]'), tc0 = tc ? tc.getAttribute('content') : null, n = 0;
+      var pi = new Image(); pi.src = 'media/intro2-poster.jpg'; var loop = function(){ if (!o.isConnected) { if (tc && tc0) tc.setAttribute('content', tc0); return; } try { var srcEl = (vid.readyState >= 2 && vid.videoWidth) ? vid : (pi.complete && pi.naturalWidth ? pi : null); if (srcEl) { var iw = srcEl.videoWidth || srcEl.naturalWidth, ih = srcEl.videoHeight || srcEl.naturalHeight; var Wd = bd.width, Hd = bd.height, vr = iw / ih, r = Wd / Hd, sw, sh, sx, sy; if (vr > r) { sh = ih; sw = sh * r; sx = (iw - sw) / 2; sy = 0; } else { sw = iw; sh = sw / r; sx = 0; sy = (ih - sh) / 2; } g.drawImage(srcEl, sx, sy, sw, sh, 0, 0, Wd, Hd);
+        if (tc && (n++ % 20) === 0) { var d = g.getImageData(0, 0, Wd, 2).data, R = 0, G = 0, B2 = 0, k = 0; for (var i = 0; i < d.length; i += 4) { R += d[i]; G += d[i + 1]; B2 += d[i + 2]; k++; } var h = function(v){ v = Math.round(v / k * .94); return ('0' + v.toString(16)).slice(-2); }; tc.setAttribute('content', '#' + h(R) + h(G) + h(B2)); } } } catch(e){} requestAnimationFrame(loop); };
+      requestAnimationFrame(loop); })(ov);
+    ov.appendChild(bd);
     if (opt.soft) { ov.setAttribute('data-soft', '1'); ov.style.background = '#FCF6E8'; ov.style.transition = 'opacity .8s ease, background-color 1.6s ease'; vid.removeAttribute('poster'); vid.style.background = 'transparent'; vid.style.opacity = '0'; vid.style.transition = 'opacity .7s ease'; var shown = false; vid.addEventListener('playing', function(){ if (shown) return; shown = true; vid.style.opacity = '1'; setTimeout(function(){ if (ov) ov.style.background = '#000'; }, 1800); }); }
     var x = document.createElement('button');
     x.type = 'button'; x.setAttribute('aria-label', es ? 'Cerrar' : '닫기');
