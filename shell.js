@@ -91,7 +91,7 @@ noZoom(document);
     ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', es ? 'Historia de 한글 나라' : '한글 나라 이야기');
     ov.style.cssText = 'position:fixed;inset:0;z-index:2147483000;background:#000;opacity:0;transition:opacity .25s ease;display:flex;align-items:center;justify-content:center';
     vid = document.createElement('video');
-    vid.src = music ? 'media/intro2-sfx.mp4' : 'media/intro2.mp4'; vid.poster = 'media/intro2-poster.jpg';
+    vid.src = music ? 'media/intro3-sfx.mp4' : 'media/intro3.mp4'; vid.poster = 'media/intro2-poster.jpg';
     vid.playsInline = true; vid.setAttribute('playsinline', ''); vid.setAttribute('webkit-playsinline', ''); vid.autoplay = true; vid.preload = 'auto';
     vid.style.cssText = 'width:100%;height:100%;object-fit:contain;background:#000';
     if (opt.soft) { ov.setAttribute('data-soft', '1'); ov.style.background = '#FCF6E8'; ov.style.transition = 'opacity .8s ease, background-color 1.6s ease'; vid.removeAttribute('poster'); vid.style.background = 'transparent'; vid.style.opacity = '0'; vid.style.transition = 'opacity .7s ease'; var shown = false; vid.addEventListener('playing', function(){ if (shown) return; shown = true; vid.style.opacity = '1'; setTimeout(function(){ if (ov) ov.style.background = '#000'; }, 1800); }); }
@@ -101,6 +101,14 @@ noZoom(document);
     x.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
     x.addEventListener('click', function(e){ e.stopPropagation(); introClose(); });
     if (opt.closable === false) x.style.display = 'none';
+    var sk = null, taps = 0, lastTap = 0;
+    if (opt.closable === false) {
+      sk = document.createElement('button'); sk.type = 'button';
+      sk.textContent = es ? 'Saltar' : '건너뛰기';
+      sk.style.cssText = 'position:absolute;top:calc(14px + env(safe-area-inset-top));right:14px;min-height:40px;padding:0 16px;border-radius:999px;border:1.6px solid rgba(255,255,255,.85);background:rgba(30,20,14,.5);color:#fff;font:700 14px/1 system-ui,sans-serif;letter-spacing:.02em;display:none;align-items:center;gap:6px;opacity:0;transition:opacity .4s ease;cursor:pointer;z-index:2';
+      sk.innerHTML = (es ? 'Saltar' : '건너뛰기') + ' <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 5l7 7-7 7M13 5l7 7-7 7"/></svg>';
+      sk.addEventListener('click', function(e){ e.stopPropagation(); introClose(); });
+    }
     onDone = opt.onDone || null;
     var snd = document.createElement('button'); snd.type = 'button';
     snd.style.cssText = 'position:absolute;left:50%;bottom:calc(28px + env(safe-area-inset-bottom));transform:translateX(-50%);display:none;align-items:center;gap:8px;min-height:44px;padding:0 18px;border-radius:999px;border:1.6px solid rgba(255,255,255,.85);background:rgba(30,20,14,.55);color:#fff;font:700 15px system-ui,sans-serif;cursor:pointer;-webkit-tap-highlight-color:transparent';
@@ -120,13 +128,13 @@ noZoom(document);
     });
     /* if the video ever has to wait for data, the music waits with it */
     vid.addEventListener('waiting', function(){ if (started && ari && !ari.paused) { try { ari.pause(); } catch(e){} } });
-    ov.appendChild(vid); ov.appendChild(x); ov.appendChild(snd); document.body.appendChild(ov);
+    ov.appendChild(vid); ov.appendChild(x); ov.appendChild(snd); if (sk) ov.appendChild(sk); document.body.appendChild(ov);
     requestAnimationFrame(function(){ if (ov) ov.style.opacity = '1'; });
     var muteStart = function(){ vid.muted = true; snd.style.display = 'flex'; var q = vid.play(); if (q && q.catch) q.catch(function(){}); };
     var unlocked = false; try { unlocked = !!(navigator.userActivation && navigator.userActivation.hasBeenActive); } catch(e){}
     if (!unlocked && opt.auto) { muteStart(); }
     else { var pr = vid.play(); if (pr && pr.catch) pr.catch(muteStart); }
-    ov.addEventListener('click', function(){ if (vid.paused && !held) { var q = vid.play(); if (q && q.catch) q.catch(function(){}); } });
+    ov.addEventListener('click', function(){ if (sk && sk.style.display === 'none' && (vid.currentTime || 0) >= 15) { var nw = Date.now(); taps = nw - lastTap < 2500 ? taps + 1 : 1; lastTap = nw; if (taps >= 2) { sk.style.display = 'flex'; requestAnimationFrame(function(){ sk.style.opacity = '1'; }); } } if (vid.paused && !held) { var q = vid.play(); if (q && q.catch) q.catch(function(){}); } });
   }
   W.__hlIntro = { play: introPlay, close: introClose, playing: function(){ return !!(ari && !ari.paused); } };
   /* first launch as an installed app: show the intro video once */
