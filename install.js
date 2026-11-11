@@ -25,6 +25,8 @@
   var standalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
   if (standalone) return;
   var ls = function(k, v){ try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch(e){ return null; } };
+  /* a brand-new student finishes the first run first; the guide then shows when the tour ends or on the next launch */
+  var firstRunDone = ls('yoolmi-onb') === 'done' && ls('yoolmi-tour-main') === 'done';
   var until = +(ls('hl-inst-hide') || 0);
   if (Date.now() < until && !/[?&]install=1/.test(location.search)) return;
   var ko = (ls('yoolmi-lang') || '') === 'ko';
@@ -34,7 +36,7 @@
   var inApp = /KAKAOTALK|Instagram|FBAN|FBAV|Line|WhatsApp/i.test(ua);
   var sam = /SamsungBrowser/i.test(ua);
   var deferred = null;
-  var T = ko ? {
+  var TK = {
     title: '한글 나라를 앱으로 설치해요',
     sub: '홈 화면에 토순이 아이콘이 생기고, 앱처럼 전체 화면으로 열려요.',
     btn: '앱 설치하기', later: '나중에',
@@ -44,7 +46,7 @@
     and1: '오른쪽 위 ⋮ 메뉴를 눌러요', and2: '‘앱 설치’ 또는 ‘홈 화면에 추가’를 눌러요',
     sam1: '오른쪽 아래 ≡ 메뉴를 눌러요', sam2: '‘페이지 추가’(또는 ‘현재 페이지 추가’)를 눌러요', sam3: '‘홈 화면’을 고르면 끝!', chrome: '크롬으로 열어 설치하기',
     done: '설치가 시작됐어요! 홈 화면의 토순이 아이콘으로 열어 주세요.'
-  } : {
+  }, TE = {
     title: 'Instala 한글 나라 como app',
     sub: 'Tendrás el ícono de Tosuni en tu pantalla de inicio y se abrirá a pantalla completa.',
     btn: 'Instalar app', later: 'Ahora no',
@@ -55,6 +57,7 @@
     sam1: 'Toca el menú ≡ abajo a la derecha', sam2: 'Toca “Agregar página” (o “Agregar página actual”)', sam3: 'Elige “Pantalla de inicio”. ¡Listo!', chrome: 'Abrir en Chrome para instalar',
     done: '¡Instalación iniciada! Abre la app con el ícono de Tosuni.'
   };
+  var T = ko ? TK : TE;
   var css = '#hl-inst{color-scheme:only light;position:fixed;left:0;right:0;bottom:0;z-index:2147483000;display:flex;justify-content:center;padding:0 10px calc(10px + env(safe-area-inset-bottom));pointer-events:none;font-family:"Yoolmi Hand","Fredoka","Noto Sans KR",sans-serif;color:#4A3A32}'+
   '#hl-inst .c{pointer-events:auto;width:100%;max-width:380px;box-sizing:border-box;background:#FFFBF3;border:1.8px solid #8A766B;border-radius:24px;padding:16px 16px 14px;box-shadow:0 10px 30px rgba(60,40,25,.25);transform:translateY(130%);transition:transform .45s cubic-bezier(.2,1.2,.4,1)}'+
   '#hl-inst.on .c{transform:none}'+
@@ -72,6 +75,9 @@
   function hide(days){ if (el) el.classList.remove('on'); ls('hl-inst-hide', String(Date.now() + days*86400000)); setTimeout(function(){ if (el) el.remove(); }, 500); }
   function build(){
     if (document.getElementById('hl-sp') || document.querySelector('[aria-modal="true"] video')) { setTimeout(build, 600); return; }
+    /* wait until the whole first run (language, intro, login, Tosuni's hello, home tour) is over, then speak the chosen language */
+    if (!(ls('yoolmi-tour') === 'done' || firstRunDone)) { setTimeout(build, 1500); return; }
+    T = (ls('yoolmi-lang') || '') === 'ko' ? TK : TE;
     if (shown || !document.body) return; shown = true;
     var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
     el = document.createElement('div'); el.id = 'hl-inst'; el.setAttribute('role','dialog'); el.setAttribute('aria-label', T.title);
