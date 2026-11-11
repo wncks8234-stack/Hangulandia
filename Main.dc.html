@@ -841,7 +841,7 @@ shopVals.tabHomeLbl = ko ? '홈 배경' : 'Fondo inicio'; shopVals.tabFontLbl = 
 ['butterfly', 'mushroom', 'snail', 'bird', 'sign'].forEach((k) => { shopVals['eq_' + k] = SH.owned.indexOf('dc_' + k) >= 0 && (SH.eq.deco || []).indexOf('dc_' + k) >= 0; }); shopVals.hasDeco = ['butterfly', 'mushroom', 'snail', 'bird', 'sign'].some((k) => shopVals['eq_' + k]); shopVals.plantBack = shopVals.hasDeco ? 'translateY(-10px) scale(.92)' : 'none'; shopVals.birdR = 16; shopVals.birdB = 100;
 return { ...shopVals,
 lang: lang, t: t,
-noteDot: (() => { try { const ls = window.localStorage; for (let n = 1; n <= 4; n++) { if (ls.getItem('yoolmi-hw-LH-w' + n) === '1' && ls.getItem('yoolmi-note-LH-' + n) !== 'read') return true; } } catch (e) {} return false; })(), isKo: ko, isEs: !ko,
+noteDot: (() => { try { const ls = window.localStorage; for (let n = 1; n <= 4; n++) { const B = [['cons', 'vow', 'make'], ['dcons', 'cvow', 'make2'], ['bat', 'gyeop', 'brule'], ['sim4', 'sign4', 'word4']][n - 1]; if ((ls.getItem('yoolmi-hw-LH-w' + n) === '1' || B.every((k) => ls.getItem('yoolmi-book-' + k) === '1')) && ls.getItem('yoolmi-note-LH-' + n) !== 'read') return true; } } catch (e) {} return false; })(), isKo: ko, isEs: !ko,
 koBg: ko ? 'var(--th-home,#9BD3A8)' : 'transparent', koColor: '#4A3A32',
 esBg: ko ? 'transparent' : 'var(--th-home,#9BD3A8)', esColor: '#4A3A32',
 bgmOn: this.bgmIsOn(), bgmOff: !this.bgmIsOn(), bgmBg: this.bgmIsOn() ? '#FFE9A8' : '#FFFFFF',

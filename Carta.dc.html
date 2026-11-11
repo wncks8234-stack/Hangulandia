@@ -421,7 +421,7 @@ tpData() { return [
 ]; }
 tpQ() { const out = []; this.tpData().forEach((T) => T.steps.forEach((s) => out.push(s.q))); return out; }
 tpIdx(n, s) { let k = 0; const A = this.tpData(); for (let i = 0; i < n - 1; i++) k += A[i].steps.length; return k + s; }
-tpOk(n) { try { return window.localStorage.getItem('yoolmi-hw-LH-w' + n) === '1'; } catch (e) { return false; } }
+tpOk(n) { try { const ls = window.localStorage; if (ls.getItem('yoolmi-hw-LH-w' + n) === '1') return true; const B = [['cons', 'vow', 'make'], ['dcons', 'cvow', 'make2'], ['bat', 'gyeop', 'brule'], ['sim4', 'sign4', 'word4']][n - 1] || []; return B.length > 0 && B.every((k) => ls.getItem('yoolmi-book-' + k) === '1'); } catch (e) { return false; } }
 tpDone(n) { try { return window.localStorage.getItem('yoolmi-topic-LH-' + n) === 'done'; } catch (e) { return false; } }
 noteNew() { const out = []; try { const ls = window.localStorage; for (let n = 1; n <= 4; n++) { if (this.tpOk(n) && ls.getItem('yoolmi-note-LH-' + n) !== 'read') out.push(n); } } catch (e) {} return out; }
 noteRead(n) { try { window.localStorage.setItem('yoolmi-note-LH-' + n, 'read'); } catch (e) {} }
