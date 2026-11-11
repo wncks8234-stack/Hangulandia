@@ -417,7 +417,8 @@ function ls(k){ try { return W.localStorage.getItem(k); } catch(e){ return null;
 function day(){ var d = new Date(); return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); }
 function paid(){ return ls('yoolmi-paid') === '1'; }
 function age(){ var a = ls('yoolmi-age') || ''; return a === 'u13' ? 1 : (a === '13' ? 2 : 0); }
-function on(){ return MODE !== 'off' && !paid(); }
+function native(){ try { if (W.Capacitor && W.Capacitor.isNativePlatform && W.Capacitor.isNativePlatform()) return true; } catch(e){} return /YoolmiApp/.test(navigator.userAgent || ''); }
+function on(){ if (MODE === 'off' || paid()) return false; if (MODE === 'live' && !native()) return false; return true; }
 function rd(){ var o = {}; try { o = JSON.parse(ls('yoolmi-adrw') || '{}') || {}; } catch(e){} return o.d === day() ? o : { d: day(), n: 0 }; }
 function left(){ return on() ? Math.max(0, CAP - (rd().n || 0)) : 0; }
 function es(){ return (ls('yoolmi-lang') || 'es') === 'es'; }
