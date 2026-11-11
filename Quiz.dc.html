@@ -341,7 +341,7 @@ sentBad(key) { this.hlSfx('no'); const S = this.state || {}; this.setState({ sba
 adInstall() { try {
 (function(){ if (window.__hlAd) return; var W = window, D = document;
 /* MODE: 'off' = no ads, 'test' = placeholder ads (before approval), 'live' = real ad network */
-var MODE = 'test', CAP = 3, WAIT = 5;
+var MODE = 'test', CAP = 6, WAIT = 5;
 function ls(k){ try { return W.localStorage.getItem(k); } catch(e){ return null; } }
 function day(){ var d = new Date(); return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); }
 function paid(){ return ls('yoolmi-paid') === '1'; }
