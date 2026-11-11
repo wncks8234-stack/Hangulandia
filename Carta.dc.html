@@ -252,7 +252,7 @@ ctAnswer(b, id) {
   if (tp.quiz) { this.ctQuiz(b); return; }
   if (tp.phrase) { const ph = D.phrases[Math.floor(Math.random() * D.phrases.length)]; this.ctSay(b, [{ k: 't', ko: '오늘의 한마디! 스피커를 눌러서 따라 해 봐.', es: '¡La frase de hoy! Toca el altavoz y repítela.' }, { k: 'ex', kr: ph.kr, rom: ph.rom, es: ph.es }], tp.next.concat(['__all'])); return; }
   if (tp.cheer) { const c = D.cheers[Math.floor(Math.random() * D.cheers.length)]; this.ctSay(b, [{ k: 't', ko: c[0], es: c[1] }], tp.next.concat(['__all'])); return; }
-  const nx = (tp.next || []).filter((x) => x !== id); this.ctSay(b, tp.a, nx.concat(['__all']));
+  const nx = (tp.next || []).filter((x) => x !== id); const pa = b === 'so' ? tp.a.filter((q) => !(q.k === 'link' && /^topic:/.test(String(q.to || '')) && !this.soAllow(String(q.to).slice(6)))) : tp.a; this.ctSay(b, pa, nx.concat(['__all']));
 }
 ctQuiz(b) {
   const D = this.chatData()[b]; const o = this.ctLoad(); const Q = D.quiz || []; if (!Q.length) return;
@@ -518,7 +518,7 @@ if (rid) {
     }
     return base;
   });
-  const busy = this.ctBusy() && S.typing === rid; const cl = busy ? [] : (st[rid].chips || []);
+  const busy = this.ctBusy() && S.typing === rid; const cl0 = busy ? [] : (st[rid].chips || []); const cl = cl0.indexOf('__all') >= 0 ? Array.from(new Set(cl0.filter((c) => c !== '__all').concat(rid === 'so' ? RD.order : RD.start))) : cl0;
   const SP = { __all: ['다른 질문', 'Más preguntas'] }; const TPL = (c) => { const q = String(c).split(':'); const T2 = this.tpData()[(+q[1]) - 1]; return T2 && (+q[2]) >= T2.steps.length ? ['다 읽었어요!', '¡Terminé!'] : ['따라 읽었어요!', '¡Ya lo leí!']; };
   chips = cl.filter((c) => SP[c] || RD.topics[c] || /^__tp(go)?:/.test(c)).filter((c) => rid !== 'so' || this.soAllow(c)).map((c) => ({ t: /^__tpgo:/.test(c) ? L(['같이 읽어요!', '¡Leamos juntos!']) : /^__tp:/.test(c) ? L(TPL(c)) : (SP[c] ? L(SP[c]) : L(RD.topics[c].q)), bg: /^__tp(go)?:/.test(c) || c === '__quiz' || (RD.topics[c] && RD.topics[c].quiz) ? r.color : (c === '__all' ? '#F3EEE7' : '#FFFFFF'), go: () => this.ctAsk(rid, c) }));
 }
