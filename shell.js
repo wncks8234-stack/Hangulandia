@@ -80,7 +80,7 @@ noZoom(document);
   }
   var ov = null, vid = null;
   var onDone = null;
-  function introClose(){ if (!ov) return; ov.style.opacity = '0'; var o = ov; ov = null; setTimeout(function(){ try { vid.pause(); } catch(e){} o.remove(); }, 260); var cb = onDone; onDone = null; if (cb) { try { cb(); } catch(e){} } if (ari && !ari.paused) { ariStop(); setTimeout(function(){ if (isOn()) start(); }, 700); } }
+  function introClose(){ if (!ov) return; var sft = ov.getAttribute('data-soft') === '1'; if (sft) { ov.style.transition = 'opacity .7s ease'; } ov.style.opacity = '0'; var o = ov; ov = null; setTimeout(function(){ try { vid.pause(); } catch(e){} o.remove(); }, sft ? 760 : 260); var cb = onDone; onDone = null; if (cb) { try { cb(); } catch(e){} } if (ari && !ari.paused) { ariStop(); setTimeout(function(){ if (isOn()) start(); }, 700); } }
   function introPlay(lang, opt){
     opt = opt || {};
     if (ov) return;
@@ -94,6 +94,7 @@ noZoom(document);
     vid.src = music ? 'media/intro2-sfx.mp4' : 'media/intro2.mp4'; vid.poster = 'media/intro2-poster.jpg';
     vid.playsInline = true; vid.setAttribute('playsinline', ''); vid.setAttribute('webkit-playsinline', ''); vid.autoplay = true; vid.preload = 'auto';
     vid.style.cssText = 'width:100%;height:100%;object-fit:contain;background:#000';
+    if (opt.soft) { ov.setAttribute('data-soft', '1'); ov.style.background = '#FCF6E8'; ov.style.transition = 'opacity .8s ease, background-color 1.6s ease'; vid.removeAttribute('poster'); vid.style.background = 'transparent'; vid.style.opacity = '0'; vid.style.transition = 'opacity .7s ease'; var shown = false; vid.addEventListener('playing', function(){ if (shown) return; shown = true; vid.style.opacity = '1'; setTimeout(function(){ if (ov) ov.style.background = '#000'; }, 1800); }); }
     var x = document.createElement('button');
     x.type = 'button'; x.setAttribute('aria-label', es ? 'Cerrar' : '닫기');
     x.style.cssText = 'position:absolute;top:calc(14px + env(safe-area-inset-top));right:14px;width:44px;height:44px;border-radius:50%;border:1.6px solid rgba(255,255,255,.85);background:rgba(30,20,14,.45);display:flex;align-items:center;justify-content:center;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)';
