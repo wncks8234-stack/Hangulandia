@@ -334,11 +334,11 @@ var TS = {}; Object.keys(TT).forEach(function(k){ TS[TT[k]] = [k[0], k[1]]; });
 var SH = { 'ㅂ':'ㅃ','ㅈ':'ㅉ','ㄷ':'ㄸ','ㄱ':'ㄲ','ㅅ':'ㅆ','ㅐ':'ㅒ','ㅔ':'ㅖ' };
 function isV(j){ return Vs.indexOf(j) >= 0; }
 function render(c){ if (!c) return ''; if (c.L != null && c.V != null) return String.fromCharCode(0xAC00 + (Ls.indexOf(c.L) * 21 + Vs.indexOf(c.V)) * 28 + Ts.indexOf(c.T || '')); return c.L || c.V || ''; }
-var st = { el: null, base: '', comp: null, shift: false, mode: 'ko', last: '' };
-function setVal(el, v){ var pr = Object.getOwnPropertyDescriptor(W.HTMLInputElement.prototype, 'value'); pr.set.call(el, v); el.dispatchEvent(new Event('input', { bubbles: true })); st.last = v; try { el.setSelectionRange(v.length, v.length); } catch(e){} }
-function sync(){ if (!st.el) return; if (st.el.value !== st.last) { st.base = st.el.value; st.comp = null; } }
+var st = { el: null, base: '', tail: '', comp: null, shift: false, mode: 'ko', last: '' };
+function setVal(el, v, cp){ var pr = Object.getOwnPropertyDescriptor(W.HTMLInputElement.prototype, 'value'); pr.set.call(el, v); el.dispatchEvent(new Event('input', { bubbles: true })); st.last = v; var p = cp == null ? v.length : cp; try { el.setSelectionRange(p, p); } catch(e){} }
+function sync(){ if (!st.el) return; if (st.el.value !== st.last) { var s = st.el.selectionStart; if (s == null) s = st.el.value.length; st.base = st.el.value.slice(0, s); st.tail = st.el.value.slice(s); st.comp = null; } }
 function commit(){ if (st.comp) { st.base += render(st.comp); st.comp = null; } }
-function out(){ var mx = parseInt(st.el.getAttribute('maxlength') || '0', 10); var v = st.base + render(st.comp); if (mx && Array.from(v).length > mx) return false; setVal(st.el, v); return true; }
+function out(){ var mx = parseInt(st.el.getAttribute('maxlength') || '0', 10); var h = st.base + render(st.comp); var v = h + (st.tail || ''); if (mx && Array.from(v).length > mx) return false; setVal(st.el, v, h.length); return true; }
 function jamo(j){ sync(); var c = st.comp, prev = c ? JSON.stringify(c) : null, pb = st.base;
   if (!isV(j)) {
     if (c && c.L && c.V && !c.T && Ts.indexOf(j) > 0) c.T = j;
@@ -359,6 +359,10 @@ function back(){ sync(); var c = st.comp;
   out();
 }
 function space(){ sync(); commit(); st.base += ' '; out(); }
+function ins(ch){ sync(); commit(); var pb = st.base; st.base += ch; if (!out()) st.base = pb; }
+function mvL(){ sync(); commit(); var a = Array.from(st.base); if (a.length) { st.tail = a.pop() + (st.tail || ''); st.base = a.join(''); } out(); }
+function mvR(){ sync(); commit(); var a = Array.from(st.tail || ''); if (a.length) { st.base += a.shift(); st.tail = a.join(''); } out(); }
+function say(){ sync(); commit(); out(); var tx = String((st.el && st.el.value) || '').trim(); if (!tx) return; try { var S = W.speechSynthesis; if (!S) return; S.cancel(); var u = new W.SpeechSynthesisUtterance(tx); u.lang = 'ko-KR'; u.rate = 0.85; var vs = S.getVoices ? S.getVoices() : []; for (var i = 0; i < vs.length; i++) { if (/^ko/i.test(vs[i].lang)) { u.voice = vs[i]; break; } } S.speak(u); } catch(e){} }
 function enter(){ sync(); commit(); out(); var el = st.el; try { el.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', code: 'Enter', keyCode: 13, which: 13, bubbles: true })); } catch(e){} setTimeout(function(){ sync(); }, 30); if (el.getAttribute('data-hlkb') !== 'ko') hide(); }
 /* ---------- UI ---------- */
 var TH = {"kb_hanji": ["#F3E9D2", "#D9C7A3", "#FFFFFF", "#EAD9B5", "#DCC9A2", "#FFFDF8", "#7A5A3A", "#3A2A1E", "#B0583F", "repeating-linear-gradient(17deg,#0000 0 7px,#8a6a4014 7px 8px)"], "kb_strawberry": ["#FCE8EF", "#F5C6D6", "#FFFFFF", "#FFD3E0", "#F7C3D3", "#FFFAFC", "#C9738E", "#7A3E52", "#C9738E", ""], "kb_lemon": ["#FFF6D6", "#F3E2A2", "#FFFFFF", "#FFE89A", "#F7D774", "#FFFDF2", "#C9A44E", "#5C4A1E", "#A88A3C", ""], "kb_ocean": ["#DFF1FB", "#B6DCEF", "#FFFFFF", "#BEE3F5", "#9CC9EA", "#FBFDFF", "#5E8FB0", "#24465C", "#4F7FA0", ""], "kb_rainbow": ["#FFFBF3", "#E0D3C0", "RAIN", "RAIN", "#E9DFD0", "#FFFFFF", "#8A766B", "#4A3A32", "#8A766B", ""]};
@@ -375,6 +379,17 @@ function build(){ var t = theme(); var tk = JSON.stringify(t); if (box && boxT =
     b.addEventListener('pointerdown', function(e){ e.preventDefault(); b.style.transform = 'scale(.92)'; try { if (W.__hlTap) W.__hlTap({ target: b }); } catch(x){} fn(); });
     var up = function(){ b.style.transform = ''; }; b.addEventListener('pointerup', up); b.addEventListener('pointerleave', up); b.addEventListener('mousedown', function(e){ e.preventDefault(); });
     return b; }
+  var row0 = D.createElement('div'); row0.style.cssText = 'display:flex;gap:4px;align-items:center';
+  var ico = function(b, svg){ b.textContent = ''; b.innerHTML = svg; b.style.display = 'flex'; b.style.alignItems = 'center'; b.style.justifyContent = 'center'; b.style.gap = '4px'; b.style.height = '38px'; return b; };
+  var SV = function(d){ return '<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="' + t[7] + '" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="' + d + '"></path></svg>'; };
+  var kl = ico(key('', 'f', mvL, 1), SV('M15 5l-7 7 7 7')); kl.setAttribute('aria-label', es() ? 'Mover a la izquierda' : '왼쪽으로'); row0.appendChild(kl);
+  var kr = ico(key('', 'f', mvR, 1), SV('M9 5l7 7-7 7')); kr.setAttribute('aria-label', es() ? 'Mover a la derecha' : '오른쪽으로'); row0.appendChild(kr);
+  var sep = function(){ var s = D.createElement('span'); s.setAttribute('aria-hidden', 'true'); s.style.cssText = 'flex:none;width:1.4px;height:24px;margin:0 2px;background:' + t[1]; return s; };
+  row0.appendChild(sep());
+  ['.', ',', '?', '!', '~'].forEach(function(p, pi){ var b = key(p, 'v', function(){ ins(p); }, 1, pi + 3); b.style.height = '38px'; row0.appendChild(b); });
+  row0.appendChild(sep());
+  var ks = ico(key('', 'f', say, 1.9), '<svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="' + t[7] + '" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z"></path><path d="M17 9a4 4 0 0 1 0 6"></path></svg><span style="font-size:13px">' + (es() ? 'Oír' : '듣기') + '</span>'); ks.setAttribute('aria-label', es() ? 'Escuchar lo escrito' : '쓴 글 듣기'); row0.appendChild(ks);
+  box.appendChild(row0);
   rows.forEach(function(r, ri){ var row = D.createElement('div'); row.style.cssText = 'display:flex;gap:4px;justify-content:center;padding:0 ' + (ri === 1 ? '16px' : '0'); r.forEach(function(j, ci){
     var b; if (j === '⇧') b = key('⇧', 'f', function(){ st.shift = !st.shift; paint(); }, 1.35); else if (j === '⌫') b = key('⌫', 'f', back, 1.35); else b = key(j, isV(j) ? 'v' : 'c', function(){ jamo(st.shift && SH[j] ? SH[j] : j); }, 1, ci + (ri === 2 ? 0 : 0)); keysEl[j] = b; row.appendChild(b); }); box.appendChild(row); });
   var row4 = D.createElement('div'); row4.style.cssText = 'display:flex;gap:4px';
@@ -389,7 +404,7 @@ var lifted = null;
 function lift(on){ var el = st.el; if (!el) return; var tgt = el.closest('[data-hlkb-lift]') || null; if (lifted && (!on || lifted !== tgt)) { lifted.style.marginBottom = ''; lifted = null; }
   if (on && tgt && box) { var zoom = parseFloat(getComputedStyle(D.documentElement).zoom || '1') || 1; var h = box.getBoundingClientRect().height; tgt.style.marginBottom = Math.max(0, h / zoom - 8) + 'px'; lifted = tgt; }
   else if (on && box) { setTimeout(function(){ try { var r = el.getBoundingClientRect(), b = box.getBoundingClientRect(); if (r.bottom > b.top - 8) el.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch(e){} }, 240); } }
-function show(el){ st.el = el; st.base = el.value; st.last = el.value; st.comp = null; st.mode = 'ko'; build(); box.style.display = 'flex'; requestAnimationFrame(function(){ box.style.transform = 'none'; setTimeout(function(){ lift(true); }, 30); }); chip(false); }
+function show(el){ st.el = el; st.base = el.value; st.tail = ''; st.last = el.value; st.comp = null; st.mode = 'ko'; build(); box.style.display = 'flex'; requestAnimationFrame(function(){ box.style.transform = 'none'; setTimeout(function(){ lift(true); }, 30); }); chip(false); }
 function hide(){ if (!box) return; commit(); box.style.transform = 'translateY(100%)'; lift(false); var b = box; setTimeout(function(){ if (b.style.transform !== 'none') b.style.display = 'none'; }, 230); }
 function native(){ var el = st.el; if (!el) return; commit(); st.mode = 'native'; hide(); el.setAttribute('inputmode', 'text'); try { el.blur(); setTimeout(function(){ el.focus(); chip(true); }, 60); } catch(e){} }
 /* small 한글 chip to switch back (and for name fields) */
@@ -398,7 +413,7 @@ function chip(on){ var slot = D.getElementById('ct-kbchip'); if (slot && !slot._
   var zoom = parseFloat(getComputedStyle(D.documentElement).zoom || '1') || 1; var r = el.getBoundingClientRect(); cp.style.display = 'block'; cp.style.top = (r.top + (r.height - 30 * 1) / 2) + 'px'; cp.style.left = (r.right - 64) + 'px'; }
 D.addEventListener('pointerdown', function(e){ var el = e.target && e.target.closest ? e.target.closest('input[data-hlkb]') : null; if (el && el.getAttribute('data-hlkb') === 'ko' && st.mode !== 'native') el.setAttribute('inputmode', 'none'); }, true);
 D.addEventListener('focusin', function(e){ var el = e.target; if (!el || !el.matches || !el.matches('input[data-hlkb]')) return; var kind = el.getAttribute('data-hlkb');
-  if (kind === 'ko' && el.getAttribute('inputmode') === 'none') { show(el); } else { st.el = el; st.base = el.value; st.last = el.value; st.comp = null; st.mode = 'native'; setTimeout(function(){ chip(true); }, 120); } });
+  if (kind === 'ko' && el.getAttribute('inputmode') === 'none') { show(el); } else { st.el = el; st.base = el.value; st.tail = ''; st.last = el.value; st.comp = null; st.mode = 'native'; setTimeout(function(){ chip(true); }, 120); } });
 D.addEventListener('focusout', function(e){ var el = e.target; if (!el || !el.matches || !el.matches('input[data-hlkb]')) return; setTimeout(function(){ var a = D.activeElement; if (a === el) return; if (box && box.contains(a)) return; hide(); chip(false); if (el.getAttribute('data-hlkb') === 'ko') { el.setAttribute('inputmode', 'none'); st.mode = 'ko'; } }, 120); });
 D.addEventListener('pointerdown', function(e){ if (!box || box.style.display === 'none') return; var t = e.target; if (box.contains(t) || (cp && cp.contains(t)) || (st.el && t === st.el)) return; var a = D.activeElement; if (a && a.blur) a.blur(); hide(); }, true);
 W.__hlKB = { show: show, hide: hide };
