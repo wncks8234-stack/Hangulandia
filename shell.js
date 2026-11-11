@@ -104,7 +104,7 @@ noZoom(document);
     if (opt.soft) { ov.setAttribute('data-soft', '1'); ov.style.background = PRE ? '#000' : '#FCF6E8'; ov.style.transition = PRE ? 'opacity 1.8s cubic-bezier(.45,0,.25,1)' : 'opacity .8s ease, background-color 1.6s ease'; vid.removeAttribute('poster'); vid.style.background = 'transparent'; vid.style.opacity = '0'; vid.style.transition = PRE ? 'opacity 1.4s ease' : 'opacity .7s ease'; var shown = false; vid.addEventListener('playing', function(){ if (shown) return; shown = true; vid.style.opacity = '1'; setTimeout(function(){ if (ov) ov.style.background = '#000'; }, 1800); }); }
     var x = document.createElement('button');
     x.type = 'button'; x.setAttribute('aria-label', es ? 'Cerrar' : '닫기');
-    x.style.cssText = 'position:absolute;top:calc(14px + env(safe-area-inset-top));right:14px;width:44px;height:44px;border-radius:50%;border:1.6px solid rgba(255,255,255,.85);background:rgba(30,20,14,.45);display:flex;align-items:center;justify-content:center;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)';
+    x.style.cssText = 'position:absolute;z-index:3;top:calc(14px + env(safe-area-inset-top));right:14px;width:44px;height:44px;border-radius:50%;border:1.6px solid rgba(255,255,255,.85);background:rgba(30,20,14,.45);display:flex;align-items:center;justify-content:center;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)';
     x.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
     x.addEventListener('click', function(e){ e.stopPropagation(); introClose(); });
     if (opt.closable === false) x.style.display = 'none';
@@ -112,14 +112,14 @@ noZoom(document);
     if (opt.closable === false) {
       sk = document.createElement('button'); sk.type = 'button';
       sk.textContent = es ? 'Saltar' : '건너뛰기';
-      sk.style.cssText = 'position:absolute;top:calc(14px + env(safe-area-inset-top));right:14px;min-height:40px;padding:0 16px;border-radius:999px;border:1.6px solid rgba(255,255,255,.85);background:rgba(30,20,14,.5);color:#fff;font:700 14px/1 system-ui,sans-serif;letter-spacing:.02em;display:none;align-items:center;gap:6px;opacity:0;transition:opacity .4s ease;cursor:pointer;z-index:2';
+      sk.style.cssText = 'position:absolute;top:calc(14px + env(safe-area-inset-top));right:14px;min-height:40px;padding:0 16px;border-radius:999px;border:1.6px solid rgba(255,255,255,.85);background:rgba(30,20,14,.5);color:#fff;font:700 14px/1 system-ui,sans-serif;letter-spacing:.02em;display:none;align-items:center;gap:6px;opacity:0;transition:opacity .4s ease;cursor:pointer;z-index:3';
       sk.innerHTML = (es ? 'Saltar' : '건너뛰기') + ' <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 5l7 7-7 7M13 5l7 7-7 7"/></svg>';
       sk.addEventListener('click', function(e){ e.stopPropagation(); introClose(); });
       if (tries >= 1) { sk.style.display = 'flex'; setTimeout(function(){ sk.style.opacity = '1'; }, 1200); }
     }
     onDone = opt.onDone || null;
     var snd = document.createElement('button'); snd.type = 'button';
-    snd.style.cssText = 'position:absolute;left:50%;bottom:calc(28px + env(safe-area-inset-bottom));transform:translateX(-50%);display:none;align-items:center;gap:8px;min-height:44px;padding:0 18px;border-radius:999px;border:1.6px solid rgba(255,255,255,.85);background:rgba(30,20,14,.55);color:#fff;font:700 15px system-ui,sans-serif;cursor:pointer;-webkit-tap-highlight-color:transparent';
+    snd.style.cssText = 'position:absolute;z-index:3;left:50%;bottom:calc(28px + env(safe-area-inset-bottom));transform:translateX(-50%);display:none;align-items:center;gap:8px;min-height:44px;padding:0 18px;border-radius:999px;border:1.6px solid rgba(255,255,255,.85);background:rgba(30,20,14,.55);color:#fff;font:700 15px system-ui,sans-serif;cursor:pointer;-webkit-tap-highlight-color:transparent';
     snd.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></svg>' + (es ? 'Activar sonido' : '소리 켜기');
     snd.addEventListener('click', function(e){ e.stopPropagation(); vid.muted = false; snd.style.display = 'none'; if (music) { started = true; } if (music) ariPlay(vid.currentTime || 0); else { var q = vid.play(); if (q && q.catch) q.catch(function(){}); } });
     vid.addEventListener('ended', introClose);
