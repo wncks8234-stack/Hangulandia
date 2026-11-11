@@ -80,10 +80,14 @@ noZoom(document);
   }
   var ov = null, vid = null;
   var onDone = null;
-  function introClose(){ if (!ov) return; var sft = ov.getAttribute('data-soft') === '1'; if (sft) { ov.style.transition = 'opacity .7s ease'; } ov.style.opacity = '0'; var o = ov; ov = null; setTimeout(function(){ try { vid.pause(); } catch(e){} o.remove(); }, sft ? 760 : 260); var cb = onDone; onDone = null; if (cb) { try { cb(); } catch(e){} } if (ari && !ari.paused) { ariStop(); setTimeout(function(){ if (isOn()) start(); }, 700); } }
+  function introClose(){ if (!ov) return; try { LS.removeItem('yoolmi-intro-try'); } catch(e){} var sft = ov.getAttribute('data-soft') === '1'; if (sft) { ov.style.transition = 'opacity .7s ease'; } ov.style.opacity = '0'; var o = ov; ov = null; setTimeout(function(){ try { vid.pause(); } catch(e){} o.remove(); }, sft ? 760 : 260); var cb = onDone; onDone = null; if (cb) { try { cb(); } catch(e){} } if (ari && !ari.paused) { ariStop(); setTimeout(function(){ if (isOn()) start(); }, 700); } }
+  var introWait = null;
   function introPlay(lang, opt){
     opt = opt || {};
     if (ov) return;
+    /* never start on top of the loading screen: wait until it has faded out */
+    if (document.getElementById('hl-sp')) { if (!introWait) introWait = setInterval(function(){ if (!document.getElementById('hl-sp')) { clearInterval(introWait); introWait = null; setTimeout(function(){ introPlay(lang, opt); }, 150); } }, 200); return; }
+    var tries = 0; try { tries = +(LS.getItem('yoolmi-intro-try') || 0); LS.setItem('yoolmi-intro-try', String(tries + 1)); } catch(e){}
     var es = lang === 'es';
     var music = isOn();
     if (music) { if (P) { var s0 = P.src, g0 = P.g; save(false); clearInterval(saveT); saveT = null; P = null; try { g0.gain.cancelScheduledValues(ac.currentTime); g0.gain.setValueAtTime(Math.max(0.0001, g0.gain.value), ac.currentTime); g0.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + 0.4); s0.stop(ac.currentTime + 0.45); } catch(e){} } }
@@ -116,6 +120,7 @@ noZoom(document);
       sk.style.cssText = 'position:absolute;top:calc(14px + env(safe-area-inset-top));right:14px;min-height:40px;padding:0 16px;border-radius:999px;border:1.6px solid rgba(255,255,255,.85);background:rgba(30,20,14,.5);color:#fff;font:700 14px/1 system-ui,sans-serif;letter-spacing:.02em;display:none;align-items:center;gap:6px;opacity:0;transition:opacity .4s ease;cursor:pointer;z-index:2';
       sk.innerHTML = (es ? 'Saltar' : '건너뛰기') + ' <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 5l7 7-7 7M13 5l7 7-7 7"/></svg>';
       sk.addEventListener('click', function(e){ e.stopPropagation(); introClose(); });
+      if (tries >= 1) { sk.style.display = 'flex'; setTimeout(function(){ sk.style.opacity = '1'; }, 1200); }
     }
     onDone = opt.onDone || null;
     var snd = document.createElement('button'); snd.type = 'button';
@@ -136,6 +141,22 @@ noZoom(document);
     });
     /* if the video ever has to wait for data, the music waits with it */
     vid.addEventListener('waiting', function(){ if (started && ari && !ari.paused) { try { ari.pause(); } catch(e){} } });
+    var hidPlay = false;
+    var onVis = function(){ if (!ov) { document.removeEventListener('visibilitychange', onVis); return; }
+      if (document.hidden) { hidPlay = !vid.paused || held; try { vid.pause(); } catch(e){} if (ari && !ari.paused) { try { ari.pause(); } catch(e){} } }
+      else if (hidPlay) { hidPlay = false; var q = vid.play(); if (q && q.catch) q.catch(function(){ muteStart(); }); } };
+    document.addEventListener('visibilitychange', onVis);
+    var errBox = null;
+    var showErr = function(){ if (!ov || errBox) return; var T = es ? { t: 'No se pudo cargar el video', s: 'Revisa tu conexión e inténtalo otra vez.', r: 'Reintentar', k: 'Saltar' } : { t: '영상을 불러오지 못했어요', s: '인터넷 연결을 확인하고 다시 해 주세요.', r: '다시 보기', k: '건너뛰기' };
+      errBox = document.createElement('div'); errBox.setAttribute('role', 'alert');
+      errBox.style.cssText = 'position:absolute;left:24px;right:24px;top:50%;transform:translateY(-50%);z-index:3;background:#FFFBF3;border:1.8px solid #8A766B;border-radius:20px;padding:18px 16px 14px;text-align:center;color:#4A3A32;font:700 16px/1.4 system-ui,sans-serif';
+      errBox.innerHTML = '<div>' + T.t + '</div><div style="font-weight:400;font-size:13.5px;margin-top:4px;opacity:.8">' + T.s + '</div><div style="display:flex;gap:8px;margin-top:14px"><button type="button" data-a="r" style="flex:1;min-height:44px;border-radius:999px;border:1.6px solid #8A766B;background:#C3DFD8;font:700 15px system-ui,sans-serif;color:#4A3A32">' + T.r + '</button><button type="button" data-a="k" style="flex:1;min-height:44px;border-radius:999px;border:1.6px solid #8A766B;background:#fff;font:700 15px system-ui,sans-serif;color:#4A3A32">' + T.k + '</button></div>';
+      errBox.querySelector('[data-a=r]').addEventListener('click', function(e){ e.stopPropagation(); errBox.remove(); errBox = null; t0 = Date.now(); try { vid.load(); } catch(x){} var q = vid.play(); if (q && q.catch) q.catch(function(){ muteStart(); }); });
+      errBox.querySelector('[data-a=k]').addEventListener('click', function(e){ e.stopPropagation(); introClose(); });
+      ov.appendChild(errBox); };
+    vid.addEventListener('error', showErr);
+    var watch = setInterval(function(){ if (!ov) { clearInterval(watch); return; } if (document.hidden || errBox) return; if ((vid.currentTime || 0) < 0.2 && Date.now() - t0 > 12000) showErr(); }, 1000);
+    vid.addEventListener('playing', function(){ if (errBox) { errBox.remove(); errBox = null; } });
     ov.appendChild(vid); ov.appendChild(x); ov.appendChild(snd); if (sk) ov.appendChild(sk); document.body.appendChild(ov);
     requestAnimationFrame(function(){ if (ov) ov.style.opacity = '1'; });
     var muteStart = function(){ vid.muted = true; snd.style.display = 'flex'; var q = vid.play(); if (q && q.catch) q.catch(function(){}); };

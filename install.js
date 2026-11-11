@@ -68,7 +68,7 @@
   var el, shown = false;
   function hide(days){ if (el) el.classList.remove('on'); ls('hl-inst-hide', String(Date.now() + days*86400000)); setTimeout(function(){ if (el) el.remove(); }, 500); }
   function build(){
-    if (document.getElementById('hl-sp')) { setTimeout(build, 400); return; }
+    if (document.getElementById('hl-sp') || document.querySelector('[aria-modal="true"] video')) { setTimeout(build, 600); return; }
     if (shown || !document.body) return; shown = true;
     var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
     el = document.createElement('div'); el.id = 'hl-inst'; el.setAttribute('role','dialog'); el.setAttribute('aria-label', T.title);
