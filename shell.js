@@ -96,7 +96,7 @@ noZoom(document);
     ov.style.cssText = 'position:fixed;inset:0;z-index:2147483000;background:#000;opacity:0;transition:opacity .25s ease;display:flex;align-items:center;justify-content:center';
     vid = document.createElement('video');
     vid.src = music ? 'media/intro3-sfx.mp4' : 'media/intro3.mp4'; vid.poster = 'media/intro2-poster.jpg';
-    vid.playsInline = true; vid.setAttribute('playsinline', ''); vid.setAttribute('webkit-playsinline', ''); vid.autoplay = true; vid.preload = 'auto';
+    vid.playsInline = true; vid.setAttribute('playsinline', ''); vid.setAttribute('webkit-playsinline', ''); vid.autoplay = !(+opt.pre > 0); vid.preload = 'auto';
     vid.style.cssText = 'position:relative;z-index:1;width:100%;height:100%;object-fit:contain;background:transparent';
     /* fill the bars above and below the 9:16 video with a soft blurred copy of it, and tint the status bar to match */
     var bd = document.createElement('canvas'); bd.setAttribute('aria-hidden', 'true'); bd.width = 40; bd.height = Math.max(40, Math.round(40 * (W.innerHeight || 844) / (W.innerWidth || 390)));
@@ -106,7 +106,9 @@ noZoom(document);
         if (tc && (n++ % 20) === 0) { var d = g.getImageData(0, 0, Wd, 2).data, R = 0, G = 0, B2 = 0, k = 0; for (var i = 0; i < d.length; i += 4) { R += d[i]; G += d[i + 1]; B2 += d[i + 2]; k++; } var h = function(v){ v = Math.round(v / k * .94); return ('0' + v.toString(16)).slice(-2); }; tc.setAttribute('content', '#' + h(R) + h(G) + h(B2)); } } } catch(e){} requestAnimationFrame(loop); };
       requestAnimationFrame(loop); })(ov);
     ov.appendChild(bd);
-    if (opt.soft) { ov.setAttribute('data-soft', '1'); ov.style.background = '#FCF6E8'; ov.style.transition = 'opacity .8s ease, background-color 1.6s ease'; vid.removeAttribute('poster'); vid.style.background = 'transparent'; vid.style.opacity = '0'; vid.style.transition = 'opacity .7s ease'; var shown = false; vid.addEventListener('playing', function(){ if (shown) return; shown = true; vid.style.opacity = '1'; setTimeout(function(){ if (ov) ov.style.background = '#000'; }, 1800); }); }
+    if (+opt.pre > 0) { bd.style.opacity = '0'; bd.style.transition = 'opacity 1.4s ease'; vid.addEventListener('playing', function(){ bd.style.opacity = '1'; }); }
+    var PRE = Math.max(0, +opt.pre || 0);
+    if (opt.soft) { ov.setAttribute('data-soft', '1'); ov.style.background = PRE ? '#000' : '#FCF6E8'; ov.style.transition = PRE ? 'opacity 1.1s ease' : 'opacity .8s ease, background-color 1.6s ease'; vid.removeAttribute('poster'); vid.style.background = 'transparent'; vid.style.opacity = '0'; vid.style.transition = PRE ? 'opacity 1.4s ease' : 'opacity .7s ease'; var shown = false; vid.addEventListener('playing', function(){ if (shown) return; shown = true; vid.style.opacity = '1'; setTimeout(function(){ if (ov) ov.style.background = '#000'; }, 1800); }); }
     var x = document.createElement('button');
     x.type = 'button'; x.setAttribute('aria-label', es ? 'Cerrar' : '닫기');
     x.style.cssText = 'position:absolute;top:calc(14px + env(safe-area-inset-top));right:14px;width:44px;height:44px;border-radius:50%;border:1.6px solid rgba(255,255,255,.85);background:rgba(30,20,14,.45);display:flex;align-items:center;justify-content:center;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)';
@@ -128,7 +130,7 @@ noZoom(document);
     snd.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></svg>' + (es ? 'Activar sonido' : '소리 켜기');
     snd.addEventListener('click', function(e){ e.stopPropagation(); vid.muted = false; snd.style.display = 'none'; if (music) { started = true; } if (music) ariPlay(vid.currentTime || 0); else { var q = vid.play(); if (q && q.catch) q.catch(function(){}); } });
     vid.addEventListener('ended', introClose);
-    var started = false, held = false, firstChk = false, t0 = Date.now();
+    var started = false, held = false, firstChk = false, t0 = Date.now() + PRE;
     /* start only once a few seconds are buffered, so the first seconds never stutter */
     var buf = function(){ try { if (vid.readyState >= 4) return true; var r = vid.buffered; if (!r.length) return false; var need = Math.min(8, (vid.duration || 8) - 0.1); return r.end(r.length - 1) - (vid.currentTime || 0) >= need; } catch(e){ return true; } };
     var hold = function(){ held = true; try { vid.pause(); vid.currentTime = 0; } catch(e){} var iv = setInterval(function(){ if (!ov) { clearInterval(iv); return; } if (buf() || Date.now() - t0 > 8000) { clearInterval(iv); held = false; var q = vid.play(); if (q && q.catch) q.catch(function(){}); } }, 150); };
@@ -147,7 +149,7 @@ noZoom(document);
       else if (hidPlay) { hidPlay = false; var q = vid.play(); if (q && q.catch) q.catch(function(){ muteStart(); }); } };
     document.addEventListener('visibilitychange', onVis);
     var errBox = null;
-    var showErr = function(){ if (!ov || errBox) return; var T = es ? { t: 'No se pudo cargar el video', s: 'Revisa tu conexión e inténtalo otra vez.', r: 'Reintentar', k: 'Saltar' } : { t: '영상을 불러오지 못했어요', s: '인터넷 연결을 확인하고 다시 해 주세요.', r: '다시 보기', k: '건너뛰기' };
+    var showErr = function(){ if (!ov || errBox) return; if (Date.now() < t0) { setTimeout(showErr, t0 - Date.now() + 200); return; } var T = es ? { t: 'No se pudo cargar el video', s: 'Revisa tu conexión e inténtalo otra vez.', r: 'Reintentar', k: 'Saltar' } : { t: '영상을 불러오지 못했어요', s: '인터넷 연결을 확인하고 다시 해 주세요.', r: '다시 보기', k: '건너뛰기' };
       errBox = document.createElement('div'); errBox.setAttribute('role', 'alert');
       errBox.style.cssText = 'position:absolute;left:24px;right:24px;top:50%;transform:translateY(-50%);z-index:3;background:#FFFBF3;border:1.8px solid #8A766B;border-radius:20px;padding:18px 16px 14px;text-align:center;color:#4A3A32;font:700 16px/1.4 system-ui,sans-serif';
       errBox.innerHTML = '<div>' + T.t + '</div><div style="font-weight:400;font-size:13.5px;margin-top:4px;opacity:.8">' + T.s + '</div><div style="display:flex;gap:8px;margin-top:14px"><button type="button" data-a="r" style="flex:1;min-height:44px;border-radius:999px;border:1.6px solid #8A766B;background:#C3DFD8;font:700 15px system-ui,sans-serif;color:#4A3A32">' + T.r + '</button><button type="button" data-a="k" style="flex:1;min-height:44px;border-radius:999px;border:1.6px solid #8A766B;background:#fff;font:700 15px system-ui,sans-serif;color:#4A3A32">' + T.k + '</button></div>';
@@ -159,10 +161,21 @@ noZoom(document);
     vid.addEventListener('playing', function(){ if (errBox) { errBox.remove(); errBox = null; } });
     ov.appendChild(vid); ov.appendChild(x); ov.appendChild(snd); if (sk) ov.appendChild(sk); document.body.appendChild(ov);
     requestAnimationFrame(function(){ if (ov) ov.style.opacity = '1'; });
+    var hint = null;
+    if (PRE) {
+      hint = document.createElement('div'); hint.setAttribute('aria-live', 'polite');
+      hint.style.cssText = 'position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);z-index:2;display:flex;flex-direction:column;align-items:center;gap:10px;color:#F6EFE3;text-align:center;opacity:0;transition:opacity 1.2s ease;pointer-events:none;font-family:"Yoolmi Hand",system-ui,sans-serif';
+      var h1 = es ? 'Sube el volumen' : '소리를 켜 주세요', h2 = es ? '소리를 켜 주세요' : 'Sube el volumen';
+      hint.innerHTML = '<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#F6EFE3" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity:.85"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></svg><div style="font-weight:700;font-size:19px;letter-spacing:.02em">' + h1 + '</div><div style="font-size:14px;opacity:.7">' + h2 + '</div>';
+      ov.appendChild(hint);
+      setTimeout(function(){ if (hint) hint.style.opacity = '1'; }, 1300);
+      setTimeout(function(){ if (hint) hint.style.opacity = '0'; }, Math.max(1800, PRE - 1500));
+      setTimeout(function(){ if (hint) { hint.remove(); hint = null; } }, PRE + 200);
+    }
     var muteStart = function(){ vid.muted = true; snd.style.display = 'flex'; var q = vid.play(); if (q && q.catch) q.catch(function(){}); };
     var unlocked = false; try { unlocked = !!(navigator.userActivation && navigator.userActivation.hasBeenActive); } catch(e){}
-    if (!unlocked && opt.auto) { muteStart(); }
-    else { var pr = vid.play(); if (pr && pr.catch) pr.catch(muteStart); }
+    var kick = function(){ if (!ov) return; if (!unlocked && opt.auto) { muteStart(); } else { var pr = vid.play(); if (pr && pr.catch) pr.catch(muteStart); } };
+    if (PRE) setTimeout(kick, PRE); else kick();
     ov.addEventListener('click', function(){ if (sk && sk.style.display === 'none' && (vid.currentTime || 0) >= 15) { var nw = Date.now(); taps = nw - lastTap < 2500 ? taps + 1 : 1; lastTap = nw; if (taps >= 2) { sk.style.display = 'flex'; requestAnimationFrame(function(){ sk.style.opacity = '1'; }); } } if (vid.paused && !held) { var q = vid.play(); if (q && q.catch) q.catch(function(){}); } });
   }
   W.__hlIntro = { play: introPlay, close: introClose, playing: function(){ return !!(ari && !ari.paused); } };
