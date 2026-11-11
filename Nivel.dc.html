@@ -49,7 +49,7 @@ button[style*="border:1."]:not([disabled]),button[style*="border:2"]:not([disabl
 </helmet>
 <div lang="{{ lang }}" style="position:relative;width:390px;height:var(--app-h,844px);display:flex;flex-direction:column;overflow:hidden;background:var(--th-bg,url(_blob/a95a8ce27fe524ccfa2245d1d6de63e7) center/cover no-repeat,#CDE8E0);color:#4A3A32;font-family:'Yoolmi Hand','Fredoka','Noto Sans KR',sans-serif;line-height:1.5">
 <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 14px 6px">
-<div style="display:flex;align-items:center;gap:8px;min-width:0"><a href="Main.dc.html" aria-label="{{ t.backHome }}" style="width:42px;height:42px;flex:none;border-radius:50%;border:1.6px solid #8A766B;background:#fff;display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#4A3A32" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></a><div style="font-family:'Yoolmi Hand','Fredoka','Noto Sans KR',sans-serif;font-weight:700;font-size:20px;line-height:1.1;white-space:nowrap">{{ t.title }}</div></div>
+<div style="display:flex;align-items:center;gap:8px;min-width:0"><a href="Main.dc.html" aria-label="{{ t.backHome }}" style="min-height:40px;padding:0 14px 0 8px;border-radius:999px;border:1.6px solid #8A766B;background:#fff;display:flex;align-items:center;gap:2px;font:inherit;font-weight:700;font-size:14.5px;color:#4A3A32;text-decoration:none;cursor:pointer;flex:none"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#4A3A32" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg>{{ t.homeS }}</a><div style="font-family:'Yoolmi Hand','Fredoka','Noto Sans KR',sans-serif;font-weight:700;font-size:20px;line-height:1.1;white-space:nowrap">{{ t.title }}</div></div>
 </div>
 <div class="stagger" style="flex:1;min-height:0;overflow-y:auto;padding:14px 14px 10px;display:flex;flex-direction:column;gap:12px">
 <div style="flex:none;background:#fff;border:2.2px solid #8A766B;border-radius:22px;padding:11px 14px 12px">
@@ -174,7 +174,7 @@ return { level: Number(this.props.level ?? '1') - 1};
 }
 dict() {
 return {
-es: { stagesTitle: 'Las etapas de nuestras clases', st1: 'Semilla', st1s: 'Hangul desde cero', st2: 'Brote', st2s: 'Conversación básica', st3: 'Pétalo', st3s: 'Gramática y escritura', title: 'Ajustes', backHome: 'Volver a Inicio', yourClass: 'Tu clase según tu nivel',
+es: { stagesTitle: 'Las etapas de nuestras clases', st1: 'Semilla', st1s: 'Hangul desde cero', st2: 'Brote', st2s: 'Conversación básica', st3: 'Pétalo', st3s: 'Gramática y escritura', title: 'Ajustes', backHome: 'Volver a Inicio', homeS: 'Inicio', yourClass: 'Tu clase según tu nivel',
 when: 'Horario', period: 'Duración', periodVal: '4 semanas', formatLbl: 'Clase', format: 'Formato', formatVal: 'En vivo con Yoolmi · 50 min',
 launch: 'Lanzamiento', payTitle: '¡Planta tu semilla de coreano!', payLead: '4 semanas de clases en vivo con Yoolmi, tareas y entrenamiento en la app.', payNote2: 'Pago seguro con PayPal o tarjeta.', priceSub: '4 semanas · descuento de lanzamiento', gradBtn: '¿Y si te gradúas de Semilla?', close: 'Cerrar', replay: 'Ver de nuevo', plant: 'Escribir a Yoolmi', myPlant: 'Cuidar mi semilla', gradDone: '¡En 4 semanas de Semilla, tú también podrás leer coreano!', gradEs: '¡Hola! Estudio coreano. El hangul es un alfabeto precioso. ¡Ahora puedo leer todo en coreano!',
 gSteps: ['ANTES DE EMPEZAR', 'ETAPA 1', 'ETAPA 2', 'ETAPA 3', 'ETAPA 4', '¡GRADUACIÓN!'],
@@ -186,7 +186,7 @@ change: '¿Quieres otra clase? Escríbele a Yoolmi y revisará tu nivel.',
 levels: ['Nivel 1 · Inicial','Nivel 2 · Básico','Nivel 3 · Intermedio'],
 cls: [['Semilla','Empieza leyendo y escribiendo el hangul paso a paso.','Miércoles · 22:00 (Corea)'],['Semilla','Nivel avanzado de la clase básica, o repaso antes de gramática.','Miércoles · 22:00 (Corea)'],['Pétalo','Las 9 categorías gramaticales y gramática sistemática.','Jueves y sábados · 22:00 (Corea)']],
 navLabel: 'Navegación principal', navHome: 'Inicio', navClasses: 'Clases', navHw: 'Tareas', navLevel: 'Mi nivel' },
-ko: { stagesTitle: '우리 수업 단계', st1: '씨앗', st1s: '왕기초 · 한글 읽기', st2: '새싹', st2s: '기초 회화', st3: '꽃잎', st3s: '심화 문법·작문', title: '설정', backHome: '홈으로', yourClass: '내 레벨에 맞는 수업',
+ko: { stagesTitle: '우리 수업 단계', st1: '씨앗', st1s: '왕기초 · 한글 읽기', st2: '새싹', st2s: '기초 회화', st3: '꽃잎', st3s: '심화 문법·작문', title: '설정', backHome: '홈으로', homeS: '홈', yourClass: '내 레벨에 맞는 수업',
 when: '시간', period: '기간', periodVal: '4주', formatLbl: '수업', format: '방식', formatVal: '율미 실시간 수업 50분',
 launch: '런칭 특가', payTitle: '한국어 씨앗을 심어 볼까요?', payLead: '율미와 4주 실시간 수업, 앱에서 과제와 훈련까지 함께해요.', payNote2: 'PayPal 또는 카드로 안전하게 결제해요.', priceSub: '4주 수강료 · 첫 개강 할인', gradBtn: '씨앗 레벨 수업 졸업하면?', close: '닫기', replay: '다시 보기', plant: '율미 수업 문의하기', myPlant: '내 씨앗 키우러 가기', gradDone: '씨앗 레벨 4주를 마치면, 당신도 한국어를 읽을 수 있어요!', gradEs: '',
 gSteps: ['시작 전', '1단계', '2단계', '3단계', '4단계', '수료!'],
