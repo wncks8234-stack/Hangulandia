@@ -765,7 +765,7 @@ wbVals(a) { const S = this.state || {}; const ko = a.ko; const D = this.vocData(
  const base = { wbOpenGo: () => { if (S.wbJoy) return; this.setState({ wbJoy: true }); clearTimeout(this._wbT); this._wbT = setTimeout(() => this.setState({ wbJoy: false, wbOn: true, wbCls: null, wbOpenG: undefined }), 280); }, wbAria: (ko ? '토순이 단어장 보기 · 외운 단어 ' : 'Ver mi vocabulario · palabras: ') + all, wbBtnCls: S.wbJoy ? 'tos-joy' : 'ym-idle', wbCntOn: false, wbCnt: String(all), wbOn: !!S.wbOn };
  if (!S.wbOn) return base;
  const def = ORD.indexOf(a.cls) >= 0 ? a.cls : 'LH'; const cur = S.wbCls || def; const G = D[cur] || []; const m = J('yoolmi-v3-' + cur); const total = TOT(cur); const have = cnt[cur] || 0;
- const openG = S.wbOpenG === null ? -1 : (S.wbOpenG && S.wbOpenG[0] === cur ? S.wbOpenG[1] : G.findIndex((g, gi) => g[5].some((w, wi) => m[gi + '-' + wi]))); const wbCats = []; let lastCat = null;
+ const openG = S.wbOpenG && S.wbOpenG[0] === cur ? S.wbOpenG[1] : -1; const wbCats = []; let lastCat = null;
  G.forEach((g, gi) => { const words = []; g[5].forEach((w, wi) => { if (!m[gi + '-' + wi]) return; words.push({ k: gi + '-' + wi, star: !!w[3], ko: w[0], es: w[1], rom: w[2], aria: w[0] + ' · ' + w[1], say: () => this.vocSpeak(w[0]) }); });
   const n = words.length, T = g[5].length, done = n === T, isOpen = openG === gi; if (!n) return;
   if (lastCat !== g[0]) { wbCats.push({ k: 'c' + gi, catOn: cur !== 'LH', cat: ko ? g[0] : g[1], cat2: ko ? g[1] : g[0], groups: [] }); lastCat = g[0]; }
