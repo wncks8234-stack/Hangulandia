@@ -89,13 +89,15 @@ noZoom(document);
     if (document.getElementById('hl-sp')) { if (!introWait) introWait = setInterval(function(){ if (!document.getElementById('hl-sp')) { clearInterval(introWait); introWait = null; setTimeout(function(){ introPlay(lang, opt); }, 150); } }, 200); return; }
     var tries = 0; try { tries = +(LS.getItem('yoolmi-intro-try') || 0); LS.setItem('yoolmi-intro-try', String(tries + 1)); } catch(e){}
     var es = lang === 'es';
-    var music = isOn();
+    /* one video file (sound effects only) + Arirang played in sync, whatever the music setting:
+       this is exactly the old music-off file's soundtrack, so only one video needs to ship */
+    var music = true;
     if (music) { if (P) { var s0 = P.src, g0 = P.g; save(false); clearInterval(saveT); saveT = null; P = null; try { g0.gain.cancelScheduledValues(ac.currentTime); g0.gain.setValueAtTime(Math.max(0.0001, g0.gain.value), ac.currentTime); g0.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + 0.4); s0.stop(ac.currentTime + 0.45); } catch(e){} } }
     ov = document.createElement('div');
     ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', es ? 'Historia de 한글 나라' : '한글 나라 이야기');
     ov.style.cssText = 'position:fixed;inset:0;z-index:2147483000;background:#000;opacity:0;transition:opacity .25s ease;display:flex;align-items:center;justify-content:center';
     vid = document.createElement('video');
-    vid.src = music ? 'media/intro3-sfx.mp4?v=2' : 'media/intro3.mp4?v=2'; vid.poster = 'media/intro2-poster.jpg';
+    vid.src = 'media/intro3-sfx.mp4?v=2'; vid.poster = 'media/intro2-poster.jpg';
     vid.playsInline = true; vid.setAttribute('playsinline', ''); vid.setAttribute('webkit-playsinline', ''); vid.autoplay = !(+opt.pre > 0); vid.preload = 'auto';
     vid.style.cssText = 'position:relative;z-index:1;width:100%;height:100%;object-fit:contain;background:transparent';
     /* plain black bars above and below the 9:16 video; the status bar goes black too and comes back when the intro closes */
