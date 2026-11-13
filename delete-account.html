@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Eliminar cuenta · 계정 삭제 — Hangulandia</title>
+<style>
+:root{--bg:#FBF6EE;--ink:#4A3A32;--sub:#6B58B8;--line:#8A766B;--ok:#9BD3A8;--warn:#F28BA8}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Noto Sans KR",sans-serif}
+main{max-width:560px;margin:0 auto;padding:28px 16px 48px}
+h1{font-size:24px;margin:0 0 4px}h2{font-size:17px;margin:24px 0 6px}
+.es{color:var(--sub);font-size:14.5px}
+.card{background:#fff;border:1.6px solid var(--line);border-radius:18px;padding:16px;margin-top:16px}
+ol{padding-left:22px;margin:6px 0}
+button{font:inherit;font-weight:700;min-height:48px;padding:0 20px;border-radius:999px;border:2px solid var(--line);background:var(--ok);color:var(--ink);cursor:pointer;width:100%;margin-top:12px}
+button.danger{background:var(--warn)}button:disabled{opacity:.5;cursor:default}
+#msg{margin-top:12px;font-weight:700}
+label{display:flex;gap:8px;align-items:flex-start;margin-top:10px}
+</style></head><body><main>
+<h1>계정 삭제</h1><div class="es">Eliminar tu cuenta de Hangulandia (한글 나라)</div>
+
+<div class="card">
+<h2>앱에서 삭제하기 <span class="es">· Desde la app</span></h2>
+<ol><li>앱 아래쪽 <b>홈</b> → 맨 위 레벨 카드 → <b>설정</b><div class="es">Inicio → tarjeta de nivel → Ajustes</div></li>
+<li>맨 아래 <b>계정 삭제</b>를 누르고 확인<div class="es">Toca «Eliminar cuenta» y confirma</div></li></ol>
+</div>
+
+<div class="card">
+<h2>이 페이지에서 삭제하기 <span class="es">· Desde esta página</span></h2>
+<p>가입할 때 쓴 계정으로 로그인한 뒤 삭제할 수 있어요.<br><span class="es">Inicia sesión con la cuenta que usaste al registrarte.</span></p>
+<p>지워지는 것: 프로필, 학습 기록, 당근, 상점 아이템, 수강 상태. 되돌릴 수 없어요.<br><span class="es">Se borran tu perfil, progreso, zanahorias, artículos e inscripciones. No se puede deshacer.</span></p>
+<div id="out"><button id="g" type="button">Google로 로그인 · Iniciar sesión con Google</button><button id="f" type="button" style="background:#fff">Facebook으로 로그인 · Iniciar sesión con Facebook</button></div>
+<div id="in" hidden><p id="who"></p>
+<label><input type="checkbox" id="chk"> <span>모든 기록이 지워지는 것을 이해했어요<br><span class="es">Entiendo que se borrará todo</span></span></label>
+<button id="del" class="danger" type="button" disabled>계정 삭제 · Eliminar cuenta</button></div>
+<div id="msg" role="status"></div>
+</div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js" crossorigin="anonymous"></script>
+<script>
+(function(){
+  var C={"supabaseUrl": "https://ycjnjjcmnxwsgclllzch.supabase.co", "anonKey": "sb_publishable_e3pnBpIximPrgJNMuiTjOg_QTMkgUlM", "authEnabled": false}, $=function(i){return document.getElementById(i)}, msg=$('msg');
+  if(!C.supabaseUrl||!C.anonKey||!window.supabase){msg.textContent='지금은 앱에서만 삭제할 수 있어요 · Por ahora, elimina tu cuenta desde la app.';$('out').hidden=true;return;}
+  var sb=supabase.createClient(C.supabaseUrl,C.anonKey,{auth:{flowType:'pkce',storageKey:'hl-auth-web'}});
+  var back=location.origin+location.pathname;
+  $('g').onclick=function(){sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:back}})};
+  $('f').onclick=function(){sb.auth.signInWithOAuth({provider:'facebook',options:{redirectTo:back}})};
+  $('chk').onchange=function(){$('del').disabled=!this.checked};
+  sb.auth.getSession().then(function(r){var s=r.data&&r.data.session;if(!s)return;$('out').hidden=true;$('in').hidden=false;
+    $('who').textContent='회원 번호 · Nº de miembro: '+s.user.id.slice(0,8).toUpperCase();});
+  $('del').onclick=function(){var b=this;b.disabled=true;msg.textContent='삭제 중… · Eliminando…';
+    sb.rpc('delete_my_account').then(function(r){if(r.error)throw r.error;return sb.auth.signOut();})
+      .then(function(){$('in').hidden=true;msg.textContent='계정을 삭제했어요 · Tu cuenta fue eliminada.';},
+            function(){b.disabled=false;msg.textContent='삭제하지 못했어요. 다시 시도해 주세요 · No se pudo eliminar. Inténtalo de nuevo.';});};
+})();
+</script>
+</body></html>
