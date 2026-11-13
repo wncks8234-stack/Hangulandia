@@ -1,0 +1,51 @@
+# Push to `dev` -> build (test channel) -> static gate -> browser smoke test -> publish to `main` (GitHub Pages).
+# If any step fails, nothing is published and the live test app stays on the last good version.
+name: deploy-test
+on:
+  push:
+    branches: [dev]
+  workflow_dispatch:
+concurrency:
+  group: deploy-test
+  cancel-in-progress: false
+permissions:
+  contents: write
+jobs:
+  build-check-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install browser
+        run: |
+          npm install --no-save playwright@1.56.0
+          npx playwright install --with-deps chromium
+      - name: Sync end-to-end test (mock server, same rules as SQL)
+        run: HL_FORCE_AUTH=1 python3 tools/build.py --channel test && node tools/qa/sync-e2e.js
+      - name: Build (test channel)
+        run: python3 tools/build.py --channel test
+      - name: Static gate
+        run: python3 tools/check.py --channel test
+      - name: Browser smoke test
+        run: node tools/qa/smoke.js
+      - name: Publish to main
+        run: |
+          git fetch --depth 1 origin main
+          git worktree add ../site origin/main
+          cd ../site
+          git checkout -B main
+          find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+          cp -a "$GITHUB_WORKSPACE/.build/out/." .
+          git add -A
+          if git diff --cached --quiet; then echo "nothing to publish"; exit 0; fi
+          git -c user.name="hl-ci" -c user.email="hl-ci@users.noreply.github.com" commit -m "deploy $(python3 -c "import json;print(json.load(open('version.json'))['version'])") from dev ${GITHUB_SHA::7}"
+          git push origin main

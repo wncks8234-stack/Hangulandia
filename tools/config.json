@@ -1,0 +1,12 @@
+{
+  "test": {
+    "supabaseUrl": "https://ycjnjjcmnxwsgclllzch.supabase.co",
+    "anonKey": "sb_publishable_e3pnBpIximPrgJNMuiTjOg_QTMkgUlM",
+    "authEnabled": false
+  },
+  "prod": {
+    "supabaseUrl": "https://ycjnjjcmnxwsgclllzch.supabase.co",
+    "anonKey": "sb_publishable_e3pnBpIximPrgJNMuiTjOg_QTMkgUlM",
+    "authEnabled": false
+  }
+}

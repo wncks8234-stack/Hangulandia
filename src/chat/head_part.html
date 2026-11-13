@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>율미쌤 편지</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&amp;family=Noto+Sans+KR:wght@400;500;700&amp;display=swap">
+<style>
+*{word-break:keep-all;overflow-wrap:break-word;text-wrap-style:pretty}
+@font-face{font-family:'Yoolmi Hand';src:url('/_blob/fdf719355f79415321576ee0daa9ad2c') format('truetype');font-display:swap;size-adjust:110%}
+body{margin:0}
+@keyframes yIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes yPop{0%{opacity:0;transform:scale(.92)}60%{opacity:1;transform:scale(1.02)}100%{opacity:1;transform:scale(1)}}
+@keyframes fwdA{from{opacity:0;transform:translateX(32px)}to{opacity:1;transform:translateX(0)}}@keyframes fwdB{from{opacity:0;transform:translateX(32px)}to{opacity:1;transform:translateX(0)}}
+@keyframes backA{from{opacity:0;transform:translateX(-32px)}to{opacity:1;transform:translateX(0)}}@keyframes backB{from{opacity:0;transform:translateX(-32px)}to{opacity:1;transform:translateX(0)}}
+@keyframes flipA{from{transform:perspective(900px) rotateY(90deg)}to{transform:perspective(900px) rotateY(0)}}@keyframes flipB{from{transform:perspective(900px) rotateY(90deg)}to{transform:perspective(900px) rotateY(0)}}
+@keyframes dealA{from{opacity:0;transform:translateY(24px) rotate(-3deg)}to{opacity:1;transform:translateY(0) rotate(0)}}@keyframes dealB{from{opacity:0;transform:translateY(24px) rotate(-3deg)}to{opacity:1;transform:translateY(0) rotate(0)}}
+.stagger>*{animation:yIn .45s cubic-bezier(.2,.8,.2,1) backwards}
+.stagger>*:nth-child(2){animation-delay:0.05s}.stagger>*:nth-child(3){animation-delay:0.10s}.stagger>*:nth-child(4){animation-delay:0.15s}.stagger>*:nth-child(5){animation-delay:0.20s}.stagger>*:nth-child(6){animation-delay:0.25s}.stagger>*:nth-child(7){animation-delay:0.30s}.stagger>*:nth-child(8){animation-delay:0.35s}
+.pop-in{animation:yPop .4s cubic-bezier(.2,.8,.2,1) backwards}
+.fwdA{animation:fwdA .35s cubic-bezier(.2,.8,.2,1) backwards}.fwdB{animation:fwdB .35s cubic-bezier(.2,.8,.2,1) backwards}.backA{animation:backA .35s cubic-bezier(.2,.8,.2,1) backwards}.backB{animation:backB .35s cubic-bezier(.2,.8,.2,1) backwards}
+.flipA{animation:flipA .32s ease-out backwards}.flipB{animation:flipB .32s ease-out backwards}
+.dealA{animation:dealA .4s cubic-bezier(.2,.8,.2,1) backwards}.dealB{animation:dealB .4s cubic-bezier(.2,.8,.2,1) backwards}
+button,a{transition:background-color .18s,border-color .18s,color .18s,opacity .18s,transform .12s,box-shadow .12s}
+button:not([disabled]):active,a:active{transform:scale(.97)}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+a{color:inherit;text-decoration:none}a:hover{opacity:.8}
+@keyframes hpPulse{0%,100%{box-shadow:0 0 0 0 rgba(155,211,168,.7)}50%{box-shadow:0 0 0 10px rgba(155,211,168,0)}}.hp-pulse{animation:hpPulse 2s ease-in-out infinite}.cta{transition:transform .15s,box-shadow .15s}.cta:hover{transform:translateY(3px);box-shadow:none!important;opacity:1}
+.nr-open{animation:yIn .3s cubic-bezier(.2,.8,.2,1) backwards}
+@keyframes flagW{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}.flag{transform-origin:0 100%;animation:flagW 2.4s ease-in-out infinite}
+@keyframes sheetUp{from{transform:translateY(100%)}to{transform:none}}.sheet-up{animation:sheetUp .35s cubic-bezier(.2,.8,.2,1) backwards}
+button[style*="border:1."]:not([disabled]),button[style*="border:2"]:not([disabled]),a[style*="border:1."],a[style*="border:2"],[role="button"][style*="border:1."],label[style*="border:1."]{box-shadow:none!important}button[style*="border:1."]:not([disabled]):active,button[style*="border:2"]:not([disabled]):active,a[style*="border:1."]:active,a[style*="border:2"]:active{box-shadow:none!important;transform:translateY(2px)}
+</style>

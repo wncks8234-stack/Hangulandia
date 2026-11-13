@@ -1,0 +1,14 @@
+const {chromium}=require('playwright');
+module.exports=async function(L,H,opts={}){const b=await chromium.launch();const c=await b.newContext({viewport:{width:412,height:H||915},isMobile:true,hasTouch:true,locale:L==='es'?'es-MX':'ko-KR'});const p=await c.newPage();
+const errs=[];p.on('pageerror',e=>errs.push('PAGEERR '+e.message));p.on('console',m=>{if(m.type()==='error'&&!/TUNNEL|Failed to load/.test(m.text()))errs.push('CON '+m.text().slice(0,200))});p.on('response',r=>{if(r.status()>=400)errs.push('HTTP '+r.status()+' '+r.url().split('/').pop().slice(0,50))});
+await p.goto('http://localhost:8778/Hangulandia/');await p.waitForURL(/next=/,{timeout:120000});await p.waitForTimeout(1500);
+await p.evaluate(([L,o])=>{const s=(k,v)=>localStorage.setItem(k,v);s('hl-inst-hide',String(Date.now()+9e9));s('yoolmi-lang',L);s('yoolmi-nick','Ana');s('yoolmi-auth',JSON.stringify({prov:'google',done:true}));s('yoolmi-story','done');s('yoolmi-onb','done');s('yoolmi-paid','1');s('yoolmi-country','"MX"');s('yoolmi-age','25');s('yoolmi-reason','0');s('yoolmi-beta1','1');s('yoolmi-data-v','4');for(const k in o)s(k,o[k]);},[L,opts.ls||{}]);
+const F=()=>p.frameLocator('#hl-f');let n=0;const tag=opts.tag||'x';
+const shot=async(t)=>{n++;await p.screenshot({path:`qa/${tag}${L}${H}_${String(n).padStart(2,'0')}_${t}.png`});};
+const dump=async()=>F().locator('body').evaluate(b=>{const dlg=[...b.querySelectorAll('[role=dialog],[aria-modal="true"]')].pop();const root=dlg||b;return (dlg?'DLG['+(dlg.getAttribute('aria-label')||'')+'] ':'')+[...root.querySelectorAll('button,a,input,select,textarea')].filter(e=>{const r=e.getBoundingClientRect();return r.width>0&&getComputedStyle(e).visibility!=='hidden'}).map(e=>e.tagName[0]+':'+(e.getAttribute('aria-label')||e.placeholder||e.textContent||'').trim().replace(/\s+/g,' ').slice(0,28)).join(' | ')}).catch(e=>'nodump');
+const go=async(pg)=>{await p.goto('http://localhost:8778/Hangulandia/'+pg+'.dc.html');await p.waitForTimeout(3500);};
+const C=async(t,i=0,w=1500)=>{const l=F().locator(`button:has-text("${t}"), a:has-text("${t}"), [aria-label*="${t}"]`).nth(i);await l.click({force:true,timeout:5000});await p.waitForTimeout(w);};
+const T=async(label)=>{const d=await dump();console.log('>>',label,'|',d.slice(0,600));return d;};
+const text=async()=>F().locator('body').evaluate(b=>{const dlg=[...b.querySelectorAll('[role=dialog],[aria-modal="true"]')].pop();return (dlg||b).innerText.replace(/\s+/g,' ').slice(0,700)}).catch(()=>'');
+const done=async()=>{console.log('ERRS',[...new Set(errs)].join('\n'));await b.close();};
+return {p,F,shot,dump,go,C,T,text,done,errs};};
