@@ -66,3 +66,12 @@ Until then the app keeps the old local-only login (no server calls).
 ## Account deletion (Google Play requirement)
 - In app: Settings → Eliminar cuenta (calls `delete_my_account`, removes every row via cascade, clears the device).
 - On the web: `/delete-account.html` (sign in, confirm). Put this URL in the Play Console data-safety form.
+
+## Screen fitting (every phone)
+- Screens are laid out at 390 px wide and scaled to the phone width; height between 680 and 980 layout px
+  (`tools/tpl/head.html`). Taller phones get more space at the bottom; shorter ones scale down to fit.
+- The page never zooms or slides: pinch and double-tap zoom are blocked from first paint, and any page-level scroll is
+  reset (inner lists still scroll). Shell `html/body` are fixed.
+- Android wrapper (WebView) must also set: `setSupportZoom(false)`, `setBuiltInZoomControls(false)`,
+  `setTextZoom(100)` (ignore the phone's font-size setting, which would otherwise enlarge text and break layouts),
+  `setUseWideViewPort(true)`, `setLoadWithOverviewMode(true)`.
