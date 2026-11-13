@@ -12,7 +12,7 @@ permissions:
   contents: write
 jobs:
   build-check-deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04  # pinned: Playwright 1.56 supports this image
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
