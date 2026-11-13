@@ -62,6 +62,14 @@ def main():
         s = open(p).read()
         s = s.replace('<meta charset="utf-8">', '<meta charset="utf-8">' + stamp, 1)
         open(p, 'w').write(s)
+    shutil.copy(os.path.join(T, 'tpl', 'tour.js'), os.path.join(out, 'tour.js'))
+    for n in SCREENS:
+        p = os.path.join(out, n + '.dc.html')
+        s = open(p).read()
+        if s.count('<script src="support.js"></script>') < 1:
+            sys.exit(n + ': support.js tag missing')
+        s = s.replace('<script src="support.js"></script>', '<script src="tour.js"></script><script src="support.js"></script>', 1)
+        open(p, 'w').write(s)
     core = open(os.path.join(T, 'tpl', 'hl-core.js')).read()
     core = core.replace('__HL_VER__', ver).replace('__HL_CHANNEL__', a.channel).replace('__HL_CFG__', json.dumps(cfg))
     open(os.path.join(out, 'hl-core.js'), 'w').write(core)
@@ -74,7 +82,7 @@ def main():
             sys.exit('prod build: TEST-ONLY block not found in index.html')
     open(p, 'w').write(s)
     sw = os.path.join(out, 'sw.js')
-    w = open(sw).read().replace("'install.js','shell.js'].map", "'install.js','shell.js','hl-core.js'].map")
+    w = open(sw).read().replace("'install.js','shell.js'].map", "'install.js','shell.js','hl-core.js','tour.js'].map")
     w = w.replace("const B=new URL", "/* app " + ver + " */const B=new URL", 1)
     open(sw, 'w').write(w)
     for f in ['delete-account.html'] + (['demo.html'] if a.channel == 'test' else []):
