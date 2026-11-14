@@ -1,7 +1,7 @@
 // Hangulandia asset service worker: unpacks asset packs into Cache Storage and serves /_blob/<id>
 const V='5b7b712d9a';const CACHE='hl-assets-'+V;const PAGES='hl-pages-'+V;
 const PACKS=["assets-1.bin", "assets-2.bin", "assets-3.bin", "assets-4.bin"];
-/* app 20261114.0842-26c5a61 */const B=new URL(self.registration.scope).pathname;const SHELL=['','index.html','support.js','manifest.webmanifest','icon-192.png','icon-512.png','Main.dc.html','Mapa.dc.html','Quiz.dc.html','Clases.dc.html','Carta.dc.html','Nivel.dc.html','install.js','shell.js','hl-core.js','tour.js'].map(x=>B+x);
+/* app 20261114.0858-5fc1b12 */const B=new URL(self.registration.scope).pathname;const SHELL=['','index.html','support.js','manifest.webmanifest','icon-192.png','icon-512.png','Main.dc.html','Mapa.dc.html','Quiz.dc.html','Clases.dc.html','Carta.dc.html','Nivel.dc.html','install.js','shell.js','hl-core.js','tour.js'].map(x=>B+x);
 async function unpack(){const c=await caches.open(CACHE);const idx=await (await fetch(B+'packs/index.json?v='+V,{cache:'no-store'})).json();
  let done=0;const total=idx.packs.length;
  await Promise.all(idx.packs.map(async(pk)=>{const buf=await (await fetch(B+'packs/'+pk.file+'?v='+V,{cache:'no-store'})).arrayBuffer();
