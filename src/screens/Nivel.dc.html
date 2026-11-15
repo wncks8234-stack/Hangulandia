@@ -318,7 +318,7 @@ this._dead = true;
 try { document.removeEventListener('pointerdown', this._bgmGesture); window.removeEventListener('storage', this._bgmStore); window.removeEventListener('pagehide', this._bgmHide); } catch (e) {}
 if (W.__ymOwner === this) { W.__ymOwner = null; clearTimeout(W.__ymStopT); W.__ymStopT = setTimeout(() => { if (!W.__ymOwner) this.bgmStop(); }, 900); }
 }
-navToday() { let lv = null, pd = false; try { lv = JSON.parse(window.localStorage.getItem('yoolmi-level') || 'null'); pd = window.localStorage.getItem('yoolmi-paid') === '1'; } catch (e) {} if (!pd || (lv && lv.level !== 0)) return false; return new Date(Date.now() + 9 * 3600000).getUTCDay() === 3; }
+navToday() { let lv = null, pd = false; try { lv = JSON.parse(window.localStorage.getItem('yoolmi-level') || 'null'); pd = window.localStorage.getItem('yoolmi-paid') === '1'; } catch (e) {} if (lv && lv.level !== 0) return false; return new Date(Date.now() + 9 * 3600000).getUTCDay() === 3; }
 myCls() { let lv = null; try { lv = JSON.parse(window.localStorage.getItem('yoolmi-level') || 'null'); } catch (e) {} const n = lv && lv.level >= 0 && lv.level <= 2 ? lv.level : Number(this.props.level ?? '1') - 1; return ['LH', 'SS', 'GE'][n] || 'LH'; }
 isPaid() { try { return window.localStorage.getItem('yoolmi-paid') === '1'; } catch (e) { return false; } }
 payState() { try { const v = window.localStorage.getItem('yoolmi-pay'); if (v === 'pending' || v === 'paid') return v; return window.localStorage.getItem('yoolmi-paid') === '1' ? 'paid' : 'none'; } catch (e) { return 'none'; } }
