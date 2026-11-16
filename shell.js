@@ -161,7 +161,7 @@ noZoom(document);
       hint = document.createElement('div'); hint.setAttribute('aria-live', 'polite');
       hint.style.cssText = 'position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);z-index:2;display:flex;flex-direction:column;align-items:center;gap:10px;color:#F6EFE3;text-align:center;opacity:0;transition:opacity 1.2s ease;pointer-events:none;font-family:"Yoolmi Hand",system-ui,sans-serif';
       var h1 = es ? 'Sube el volumen' : '소리를 켜 주세요', h2 = es ? '소리를 켜 주세요' : 'Sube el volumen';
-      hint.innerHTML = '<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#F6EFE3" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity:.85"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></svg><div style="font-weight:700;font-size:19px;letter-spacing:.02em">' + h1 + '</div><div style="font-size:14px;opacity:.7">' + h2 + '</div>';
+      hint.innerHTML = '<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#F6EFE3" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity:.85"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></svg><div style="font-weight:700;font-size:19px;letter-spacing:.02em">' + h1 + '</div>';
       ov.appendChild(hint);
       setTimeout(function(){ if (hint) hint.style.opacity = '1'; }, 1600);
       setTimeout(function(){ if (hint) hint.style.opacity = '0'; }, Math.max(2200, PRE - 1300));
