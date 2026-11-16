@@ -47,9 +47,11 @@
   function watchFrame() {
     var f = document.getElementById('hl-f');
     if (!f) { setTimeout(watchFrame, 200); return; }
-    f.addEventListener('load', function () {
+    var seenDocs = [];
+    var onFrame = function () {
       var d, cw, name = '';
       try { d = f.contentDocument; cw = f.contentWindow; name = cw.location.pathname.split('/').pop(); } catch (e) { return; }
+      if (seenDocs.indexOf(d) >= 0) return; seenDocs.push(d); if (seenDocs.length > 5) seenDocs.shift();
       if (!/\.dc\.html$/.test(name)) return;
       var m = d && d.querySelector('meta[name="hl-ver"]'), v = m ? m.getAttribute('content') : '';
       if (v && v !== HL.ver) {
@@ -80,7 +82,10 @@
         } catch (e) {}
       }
       if (pendingReload) { pendingReload = false; }
-    });
+    };
+    f.addEventListener('load', onFrame);
+    /* the frame may already have loaded before this ran (fast cached start) */
+    try { var d0 = f.contentDocument; if (d0 && d0.readyState === 'complete' && /\.dc\.html$/.test(f.contentWindow.location.pathname)) onFrame(); } catch (e) {}
   }
 
   /* ---------- 4) login + server sync ---------- */
