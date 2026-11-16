@@ -5,7 +5,7 @@
   'use strict';
   var W = window, LS, SS;
   try { LS = W.localStorage; SS = W.sessionStorage; } catch (e) { return; }
-  var HL = W.HL = { ver: '20261116.0233-d9d3970', channel: 'test', cfg: {"supabaseUrl": "https://ycjnjjcmnxwsgclllzch.supabase.co", "anonKey": "sb_publishable_e3pnBpIximPrgJNMuiTjOg_QTMkgUlM", "authEnabled": false} };
+  var HL = W.HL = { ver: '20261116.0247-d31cd71', channel: 'test', cfg: {"supabaseUrl": "https://ycjnjjcmnxwsgclllzch.supabase.co", "anonKey": "sb_publishable_e3pnBpIximPrgJNMuiTjOg_QTMkgUlM", "authEnabled": false} };
 
   /* ---------- 1) data migrations ----------
      Baseline is yoolmi-data-v=6. Add a step here whenever a stored value changes shape.
@@ -47,16 +47,18 @@
   function watchFrame() {
     var f = document.getElementById('hl-f');
     if (!f) { setTimeout(watchFrame, 200); return; }
-    f.addEventListener('load', function () {
+    var seenDocs = [];
+    var onFrame = function () {
       var d, cw, name = '';
       try { d = f.contentDocument; cw = f.contentWindow; name = cw.location.pathname.split('/').pop(); } catch (e) { return; }
+      if (seenDocs.indexOf(d) >= 0) return; seenDocs.push(d); if (seenDocs.length > 5) seenDocs.shift();
       if (!/\.dc\.html$/.test(name)) return;
       var m = d && d.querySelector('meta[name="hl-ver"]'), v = m ? m.getAttribute('content') : '';
       if (v && v !== HL.ver) {
         var k = 'hl-vfix-' + HL.ver + '-' + v;
         if (!SS.getItem(k)) {
           SS.setItem(k, '1');
-          var done = function () { location.reload(); };
+          var done = function () { try { SS.setItem('hl-quick', '1'); } catch (e) {} location.reload(); };
           try { navigator.serviceWorker.getRegistration().then(function (r) { return r && r.update(); }).then(done, done); } catch (e) { done(); }
           return;
         }
@@ -80,7 +82,10 @@
         } catch (e) {}
       }
       if (pendingReload) { pendingReload = false; }
-    });
+    };
+    f.addEventListener('load', onFrame);
+    /* the frame may already have loaded before this ran (fast cached start) */
+    try { var d0 = f.contentDocument; if (d0 && d0.readyState === 'complete' && /\.dc\.html$/.test(f.contentWindow.location.pathname)) onFrame(); } catch (e) {}
   }
 
   /* ---------- 4) login + server sync ---------- */

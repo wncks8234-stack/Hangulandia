@@ -1,7 +1,7 @@
 // Hangulandia asset service worker: unpacks asset packs into Cache Storage and serves /_blob/<id>
-const V='dc2eafb8bc';const CACHE='hl-assets-'+V;const PAGES='hl-pages-'+V;
+const V='f3bf79e799';const CACHE='hl-assets-'+V;const PAGES='hl-pages-'+V;
 const PACKS=["assets-1.bin", "assets-2.bin", "assets-3.bin", "assets-4.bin"];
-/* app 20261116.0233-d9d3970 */const B=new URL(self.registration.scope).pathname;const SHELL=['','index.html','support.js','manifest.webmanifest','icon-192.png','icon-512.png','Main.dc.html','Mapa.dc.html','Quiz.dc.html','Clases.dc.html','Carta.dc.html','Nivel.dc.html','install.js','shell.js','hl-core.js','tour.js'].map(x=>B+x);
+/* app 20261116.0247-d31cd71 */const B=new URL(self.registration.scope).pathname;const SHELL=['','index.html','support.js','manifest.webmanifest','icon-192.png','icon-512.png','Main.dc.html','Mapa.dc.html','Quiz.dc.html','Clases.dc.html','Carta.dc.html','Nivel.dc.html','install.js','shell.js','hl-core.js','tour.js'].map(x=>B+x);
 async function unpack(){const c=await caches.open(CACHE);const idx=await (await fetch(B+'packs/index.json?v='+V,{cache:'no-store'})).json();
  let done=0;const total=idx.packs.length;
  await Promise.all(idx.packs.map(async(pk)=>{const buf=await (await fetch(B+'packs/'+pk.file+'?v='+V,{cache:'no-store'})).arrayBuffer();
@@ -12,8 +12,9 @@ self.addEventListener('activate',e=>{e.waitUntil((async()=>{for(const k of await
 self.addEventListener('fetch',e=>{const u=new URL(e.request.url);if(u.origin!==location.origin)return;
  if(u.pathname.startsWith(B+'_blob/')){e.respondWith((async()=>{const c=await caches.open(CACHE);const r=await c.match(u.pathname);if(r){const rg=e.request.headers.get('range');if(rg&&/^video\//.test(r.headers.get('content-type')||'')){const b=await r.arrayBuffer();const m=/bytes=(\d+)-(\d*)/.exec(rg);const s=+m[1],en=m[2]?+m[2]:b.byteLength-1;return new Response(b.slice(s,en+1),{status:206,headers:{'content-type':r.headers.get('content-type'),'content-range':`bytes ${s}-${en}/${b.byteLength}`,'accept-ranges':'bytes','content-length':String(en-s+1)}});}return r;}return new Response('',{status:404});})());return;}
  if(e.request.mode==='navigate'||/\.(dc\.html|js|webmanifest|png)$/.test(u.pathname)){e.respondWith((async()=>{const p=await caches.open(PAGES);const key=u.pathname;const hit=await p.match(key);
+  if(hit)return hit;
   const net=fetch(e.request,{cache:'no-cache'}).then(r=>{if(r.ok&&!r.redirected){p.put(u.pathname,r.clone());}return r;}).catch(()=>null);
-  if(hit){e.waitUntil(net);const quick=await Promise.race([net,new Promise(r=>setTimeout(()=>r(null),1800))]);return quick||hit;}
+  
   const r=await net;return r||(await p.match(B+'Main.dc.html'))||new Response('',{status:504});})());}
 });
 
