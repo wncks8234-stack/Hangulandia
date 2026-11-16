@@ -51,7 +51,7 @@ s=open(O+'index.html').read()
 s=s.replace('<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">','<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">',1)
 a="const go=()=>location.replace(safe);"
 assert a in s
-s=s.replace(a,"const sp=new URLSearchParams(location.search);sp.delete('next');const rest=(sp.toString()?'?'+sp.toString():'')+location.hash;const go=()=>setTimeout(()=>window.__hlShow(safe+rest),2300);")
+s=s.replace(a,"const sp=new URLSearchParams(location.search);sp.delete('next');const rest=(sp.toString()?'?'+sp.toString():'')+location.hash;const go=()=>setTimeout(()=>window.__hlShow(safe+rest),window.__hlQK?0:2300);")
 s=s.replace('</body>','<iframe id="hl-f" title="한글 나라" allow="autoplay; clipboard-write; web-share; fullscreen" style="position:fixed;inset:0;width:100%;height:100%;border:0;display:none;background:#C3DFD8"></iframe><script src="shell.js"></script><script src="install.js" defer></script></body>',1)
 # shell script must exist before the boot script calls __hlShow
 i=s.find('<script>\n(async()=>{'); assert i>0

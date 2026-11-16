@@ -56,7 +56,7 @@
         var k = 'hl-vfix-' + HL.ver + '-' + v;
         if (!SS.getItem(k)) {
           SS.setItem(k, '1');
-          var done = function () { location.reload(); };
+          var done = function () { try { SS.setItem('hl-quick', '1'); } catch (e) {} location.reload(); };
           try { navigator.serviceWorker.getRegistration().then(function (r) { return r && r.update(); }).then(done, done); } catch (e) { done(); }
           return;
         }
