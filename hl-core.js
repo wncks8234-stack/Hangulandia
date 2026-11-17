@@ -5,7 +5,7 @@
   'use strict';
   var W = window, LS, SS;
   try { LS = W.localStorage; SS = W.sessionStorage; } catch (e) { return; }
-  var HL = W.HL = { ver: '20261116.0627-c9803b6', channel: 'test', cfg: {"supabaseUrl": "https://ycjnjjcmnxwsgclllzch.supabase.co", "anonKey": "sb_publishable_e3pnBpIximPrgJNMuiTjOg_QTMkgUlM", "authEnabled": false} };
+  var HL = W.HL = { ver: '20261117.0545-89f6d55', channel: 'test', cfg: {"supabaseUrl": "https://ycjnjjcmnxwsgclllzch.supabase.co", "anonKey": "sb_publishable_e3pnBpIximPrgJNMuiTjOg_QTMkgUlM", "authEnabled": false} };
 
   /* ---------- 1) data migrations ----------
      Baseline is yoolmi-data-v=6. Add a step here whenever a stored value changes shape.
