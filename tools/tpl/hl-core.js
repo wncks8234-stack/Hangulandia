@@ -220,4 +220,7 @@
   try { migrate(); } catch (e) {}
   watchFrame();
   try { initAuth(); } catch (e) { report('init: ' + e.message, 'core'); }
+
+  /* look for a new version whenever the app comes back to the screen (and every 10 minutes while open) */
+  try { var upd = function () { try { navigator.serviceWorker.getRegistration().then(function (r) { if (r) r.update(); }).catch(function () {}); } catch (e) {} }; document.addEventListener('visibilitychange', function () { if (!document.hidden) upd(); }); setInterval(upd, 600000); } catch (e) {}
 })();

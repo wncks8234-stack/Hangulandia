@@ -84,6 +84,7 @@ def main():
     sw = os.path.join(out, 'sw.js')
     w = open(sw).read().replace("'install.js','shell.js'].map", "'install.js','shell.js','hl-core.js','tour.js'].map")
     w = w.replace("const B=new URL", "/* app " + ver + " */const B=new URL", 1)
+    w = w.replace("const APP='__APP__'", "const APP='" + ver + "'", 1)
     open(sw, 'w').write(w)
     for f in ['delete-account.html'] + (['demo.html'] if a.channel == 'test' else []):
         src = os.path.join(T, 'static-pages', f)

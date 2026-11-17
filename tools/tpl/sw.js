@@ -1,12 +1,12 @@
 // Hangulandia asset service worker: unpacks asset packs into Cache Storage and serves /_blob/<id>
-const V='__VER__';const CACHE='hl-assets-'+V;const PAGES='hl-pages-'+V;
+const V='__VER__';const APP='__APP__';const CACHE='hl-assets-'+V;const PAGES='hl-pages-'+V+'-'+APP;
 const PACKS=__PACKS__;
 const SHELL=['/','/index.html','/support.js','/manifest.webmanifest','/icon-192.png','/icon-512.png','/Main.dc.html','/Mapa.dc.html','/Quiz.dc.html','/Clases.dc.html','/Carta.dc.html','/Nivel.dc.html'];
-async function unpack(){const c=await caches.open(CACHE);const idx=await (await fetch('/packs/index.json?v='+V,{cache:'no-store'})).json();
+async function unpack(){const c=await caches.open(CACHE);/* pictures unchanged since last time: keep them, no re-download */if(await c.match('/_blob/__packs_ok__'))return;const idx=await (await fetch('/packs/index.json?v='+V,{cache:'no-store'})).json();
  let done=0;const total=idx.packs.length;
  await Promise.all(idx.packs.map(async(pk)=>{const buf=await (await fetch('/packs/'+pk.file+'?v='+V,{cache:'no-store'})).arrayBuffer();
   for(const e of pk.items){const body=buf.slice(e.o,e.o+e.n);await c.put('/_blob/'+e.id,new Response(body,{headers:{'content-type':e.t,'content-length':String(e.n),'cache-control':'public, max-age=31536000'}}));}
-  done++;const cl=await self.clients.matchAll({includeUncontrolled:true});cl.forEach(x=>x.postMessage({hl:'progress',done,total}));}));}
+  done++;const cl=await self.clients.matchAll({includeUncontrolled:true});cl.forEach(x=>x.postMessage({hl:'progress',done,total}));}));await c.put('/_blob/__packs_ok__',new Response('1'));}
 self.addEventListener('install',e=>{e.waitUntil((async()=>{await unpack();const p=await caches.open(PAGES);await p.addAll(SHELL.map(u=>new Request(u,{cache:'no-store'})));self.skipWaiting();})());});
 self.addEventListener('activate',e=>{e.waitUntil((async()=>{for(const k of await caches.keys())if(k!==CACHE&&k!==PAGES)await caches.delete(k);await self.clients.claim();})());});
 self.addEventListener('fetch',e=>{const u=new URL(e.request.url);if(u.origin!==location.origin)return;
