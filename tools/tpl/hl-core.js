@@ -87,7 +87,8 @@
           cw.YM = {
             deleteAccount: function () { return AUTH.deleteAccount().then(function () { return { ok: true }; }, function (e) { report('delete: ' + (e && e.message), name); return { ok: false }; }); },
             logout: function () { AUTH.signOut(); },
-            memberCode: function () { return AUTH.memberCode(); }
+            memberCode: function () { return AUTH.memberCode(); },
+            meet: function (cls) { return AUTH.meet(cls); }
           };
         } catch (e) {}
       }
@@ -184,6 +185,11 @@
       if (!sb) { fin(); return Promise.resolve(); }
       push(true);
       return sb.auth.signOut().then(fin, fin);
+    },
+    /* class Meet link: the server hands it out only to an enrolled student, from 5 minutes before class */
+    meet: function (cls) {
+      if (!sb || !user) return Promise.resolve({ state: 'login' });
+      return sb.rpc('my_meet_link', { p_class: cls }).then(function (res) { return res.error ? { state: 'error' } : (res.data || { state: 'error' }); }, function () { return { state: 'error' }; });
     },
     deleteAccount: function () {
       if (!sb || !user) return Promise.reject(new Error('not signed in'));
