@@ -5,7 +5,7 @@
   'use strict';
   var W = window, LS, SS;
   try { LS = W.localStorage; SS = W.sessionStorage; } catch (e) { return; }
-  var HL = W.HL = { ver: '20261121.0557-6c765e8', channel: 'test', cfg: {"supabaseUrl": "https://ycjnjjcmnxwsgclllzch.supabase.co", "anonKey": "sb_publishable_e3pnBpIximPrgJNMuiTjOg_QTMkgUlM", "authEnabled": false} };
+  var HL = W.HL = { ver: '20261121.0631-6bd40ae', channel: 'test', cfg: {"supabaseUrl": "https://ycjnjjcmnxwsgclllzch.supabase.co", "anonKey": "sb_publishable_e3pnBpIximPrgJNMuiTjOg_QTMkgUlM", "authEnabled": false} };
 
   /* ---------- 1) data migrations ----------
      Baseline is yoolmi-data-v=6. Add a step here whenever a stored value changes shape.
@@ -167,7 +167,7 @@
     signIn: function (provider) {
       if (!sb) return Promise.reject(new Error('auth off'));
       var back = location.origin + location.pathname;
-      return sb.auth.signInWithOAuth({ provider: provider === 'facebook' ? 'facebook' : 'google', options: { redirectTo: back } });
+      return sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: back } });
     },
     signOut: function () {
       var fin = function () { applyState({}); LS.removeItem('hl-sync-uid'); LS.removeItem('hl-sync-at'); location.replace(location.pathname); };

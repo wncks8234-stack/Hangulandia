@@ -26,7 +26,7 @@ label{display:flex;gap:8px;align-items:flex-start;margin-top:10px}
 <h2>이 페이지에서 삭제하기 <span class="es">· Desde esta página</span></h2>
 <p>가입할 때 쓴 계정으로 로그인한 뒤 삭제할 수 있어요.<br><span class="es">Inicia sesión con la cuenta que usaste al registrarte.</span></p>
 <p>지워지는 것: 프로필, 학습 기록, 당근, 상점 아이템, 수강 상태. 되돌릴 수 없어요.<br><span class="es">Se borran tu perfil, progreso, zanahorias, artículos e inscripciones. No se puede deshacer.</span></p>
-<div id="out"><button id="g" type="button">Google로 로그인 · Iniciar sesión con Google</button><button id="f" type="button" style="background:#fff">Facebook으로 로그인 · Iniciar sesión con Facebook</button></div>
+<div id="out"><button id="g" type="button">Google로 로그인 · Iniciar sesión con Google</button></div>
 <div id="in" hidden><p id="who"></p>
 <label><input type="checkbox" id="chk"> <span>모든 기록이 지워지는 것을 이해했어요<br><span class="es">Entiendo que se borrará todo</span></span></label>
 <button id="del" class="danger" type="button" disabled>계정 삭제 · Eliminar cuenta</button></div>
@@ -41,7 +41,6 @@ label{display:flex;gap:8px;align-items:flex-start;margin-top:10px}
   var sb=supabase.createClient(C.supabaseUrl,C.anonKey,{auth:{flowType:'pkce',storageKey:'hl-auth-web'}});
   var back=location.origin+location.pathname;
   $('g').onclick=function(){sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:back}})};
-  $('f').onclick=function(){sb.auth.signInWithOAuth({provider:'facebook',options:{redirectTo:back}})};
   $('chk').onchange=function(){$('del').disabled=!this.checked};
   sb.auth.getSession().then(function(r){var s=r.data&&r.data.session;if(!s)return;$('out').hidden=true;$('in').hidden=false;
     $('who').textContent='회원 번호 · Nº de miembro: '+s.user.id.slice(0,8).toUpperCase();});
