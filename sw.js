@@ -1,7 +1,7 @@
 // Hangulandia asset service worker: unpacks asset packs into Cache Storage and serves /_blob/<id>
-const V='73706b6e4c';const APP='20261121.1025-c2b4005';const CACHE='hl-assets-'+V;const PAGES='hl-pages-'+V+'-'+APP;
+const V='dc2eafb8bc';const APP='20261121.1034-b689d12';const CACHE='hl-assets-'+V;const PAGES='hl-pages-'+V+'-'+APP;
 const PACKS=["assets-1.bin", "assets-2.bin", "assets-3.bin", "assets-4.bin"];
-/* app 20261121.1025-c2b4005 */const B=new URL(self.registration.scope).pathname;const SHELL=['','index.html','support.js','manifest.webmanifest','icon-192.png','icon-512.png','Main.dc.html','Mapa.dc.html','Quiz.dc.html','Clases.dc.html','Carta.dc.html','Nivel.dc.html','install.js','shell.js','hl-core.js','tour.js'].map(x=>B+x);
+/* app 20261121.1034-b689d12 */const B=new URL(self.registration.scope).pathname;const SHELL=['','index.html','support.js','manifest.webmanifest','icon-192.png','icon-512.png','Main.dc.html','Mapa.dc.html','Quiz.dc.html','Clases.dc.html','Carta.dc.html','Nivel.dc.html','install.js','shell.js','hl-core.js','tour.js'].map(x=>B+x);
 async function unpack(){const c=await caches.open(CACHE);/* pictures unchanged since last time: keep them, no re-download */if(await c.match('/_blob/__packs_ok__'))return;const idx=await (await fetch(B+'packs/index.json?v='+V,{cache:'no-store'})).json();
  let done=0;const total=idx.packs.length;
  await Promise.all(idx.packs.map(async(pk)=>{const buf=await (await fetch(B+'packs/'+pk.file+'?v='+V,{cache:'no-store'})).arrayBuffer();
