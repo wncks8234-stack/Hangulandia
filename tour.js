@@ -10,7 +10,7 @@
   var POSE = { hi: '431c72b70c97c0534e4d129ebd538b1c', tilt: 'ed45c70fdfe4f16a87eb99d7737af96d', oops: 'd76bf5e5ab5c1bb09de68a53da41e858', hug: '551c524f37d5547f8778880f28cd5ff1', cheer: 'b2120ee51f64496edcbaa33ed046e39d', wave: '2edc7da400f67364cabb2f330021b520' };
   var BLOB = '_blob/';
   Object.keys(POSE).forEach(function (k) { var im = new Image(); im.src = BLOB + POSE[k]; });
-  var TH = 124, GAP = -16;
+  var TH = 136, GAP = -18;
   var CSS = '#hl-tour{position:fixed;inset:0;z-index:2147483000;touch-action:none;font-family:"Yoolmi Hand",Fredoka,"Noto Sans KR",sans-serif;color:#4A3A32;opacity:0;transition:opacity .3s ease;cursor:pointer;-webkit-tap-highlight-color:transparent}'
     + '#hl-tour .hole{position:absolute;border-radius:20px;box-shadow:0 0 0 200vmax rgba(40,28,22,.6);transition:left .35s ease,top .35s ease,width .35s ease,height .35s ease,border-radius .35s ease;pointer-events:none}'
     + '#hl-tour .ring{position:absolute;inset:-5px;border-radius:inherit;border:3px dashed #FFE7A6;animation:hlTr 1.6s ease-in-out infinite}@keyframes hlTr{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}'
