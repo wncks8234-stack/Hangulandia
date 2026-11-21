@@ -167,7 +167,7 @@
     signIn: function (provider) {
       if (!sb) return Promise.reject(new Error('auth off'));
       var back = location.origin + location.pathname;
-      return sb.auth.signInWithOAuth({ provider: provider === 'facebook' ? 'facebook' : 'google', options: { redirectTo: back } });
+      return sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: back } });
     },
     signOut: function () {
       var fin = function () { applyState({}); LS.removeItem('hl-sync-uid'); LS.removeItem('hl-sync-at'); location.replace(location.pathname); };
