@@ -16,7 +16,8 @@ BLOCK = ('<meta name="viewport" content="width=390, viewport-fit=cover"><meta na
          '<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">'
          '<meta name="apple-mobile-web-app-title" content="한글 나라"><link rel="manifest" href="/manifest.webmanifest">'
          '<link rel="icon" href="/icon-192.png"><link rel="apple-touch-icon" href="/icon-192.png">'
-         '<style>html,body{background:#C3DFD8}body{display:flex;justify-content:center}</style>')
+         '<style>html,body{background:#C3DFD8}body{display:flex;justify-content:center}img,svg{-webkit-touch-callout:none;-webkit-user-drag:none;-webkit-user-select:none;user-select:none}</style>'
+         '<script>document.addEventListener("contextmenu",function(e){var t=e.target;if(t&&t.closest&&!t.closest("input,textarea,[contenteditable]"))e.preventDefault();},true);</script>')
 
 
 def git_rev():
