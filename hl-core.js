@@ -5,7 +5,7 @@
   'use strict';
   var W = window, LS, SS;
   try { LS = W.localStorage; SS = W.sessionStorage; } catch (e) { return; }
-  var HL = W.HL = { ver: '20261121.1054-e95e69b', channel: 'test', cfg: {"supabaseUrl": "https://ycjnjjcmnxwsgclllzch.supabase.co", "anonKey": "sb_publishable_e3pnBpIximPrgJNMuiTjOg_QTMkgUlM", "authEnabled": false} };
+  var HL = W.HL = { ver: '20261121.1109-14fb72e', channel: 'test', cfg: {"supabaseUrl": "https://ycjnjjcmnxwsgclllzch.supabase.co", "anonKey": "sb_publishable_e3pnBpIximPrgJNMuiTjOg_QTMkgUlM", "authEnabled": false} };
   /* public app settings (app_config, readable without sign-in), cached for an hour */
   HL.config = function (key) {
     var c = HL.cfg; if (!c || !c.supabaseUrl || !c.anonKey || !W.fetch) return Promise.resolve(null);
