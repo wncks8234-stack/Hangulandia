@@ -5,7 +5,17 @@
   'use strict';
   var W = window, LS, SS;
   try { LS = W.localStorage; SS = W.sessionStorage; } catch (e) { return; }
-  var HL = W.HL = { ver: '20261121.0721-db1d02e', channel: 'test', cfg: {"supabaseUrl": "https://ycjnjjcmnxwsgclllzch.supabase.co", "anonKey": "sb_publishable_e3pnBpIximPrgJNMuiTjOg_QTMkgUlM", "authEnabled": false} };
+  var HL = W.HL = { ver: '20261121.0735-7de9254', channel: 'test', cfg: {"supabaseUrl": "https://ycjnjjcmnxwsgclllzch.supabase.co", "anonKey": "sb_publishable_e3pnBpIximPrgJNMuiTjOg_QTMkgUlM", "authEnabled": false} };
+  /* public app settings (app_config, readable without sign-in), cached for an hour */
+  HL.config = function (key) {
+    var c = HL.cfg; if (!c || !c.supabaseUrl || !c.anonKey || !W.fetch) return Promise.resolve(null);
+    var ck = 'hl-cfg-' + key;
+    try { var v0 = JSON.parse(W.sessionStorage.getItem(ck) || 'null'); if (v0 && Date.now() - v0.t < 3600000) return Promise.resolve(v0.v); } catch (e) {}
+    return W.fetch(c.supabaseUrl + '/rest/v1/app_config?select=value&key=eq.' + encodeURIComponent(key), { headers: { apikey: c.anonKey } })
+      .then(function (r) { return r.ok ? r.json() : []; })
+      .then(function (a) { var v = a && a[0] ? a[0].value : null; try { W.sessionStorage.setItem(ck, JSON.stringify({ t: Date.now(), v: v })); } catch (e) {} return v; })
+      .catch(function () { return null; });
+  };
 
   /* ---------- 1) data migrations ----------
      Baseline is yoolmi-data-v=6. Add a step here whenever a stored value changes shape.
