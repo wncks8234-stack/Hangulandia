@@ -1,7 +1,7 @@
 // Hangulandia asset service worker: unpacks asset packs into Cache Storage and serves /_blob/<id>
-const V='17599a72f0';const APP='20261127.0729-92f750d';const CACHE='hl-assets-'+V;const PAGES='hl-pages-'+V+'-'+APP;
+const V='5faeb81033';const APP='20261127.0747-fa91687';const CACHE='hl-assets-'+V;const PAGES='hl-pages-'+V+'-'+APP;
 const PACKS=["assets-1.bin", "assets-2.bin", "assets-3.bin", "assets-4.bin"];
-/* app 20261127.0729-92f750d */const B=new URL(self.registration.scope).pathname;const SHELL=['','index.html','support.js','manifest.webmanifest','icon-192.png','icon-512.png','Main.dc.html','Mapa.dc.html','Quiz.dc.html','Clases.dc.html','Carta.dc.html','Nivel.dc.html','install.js','shell.js','hl-core.js','tour.js'].map(x=>B+x);
+/* app 20261127.0747-fa91687 */const B=new URL(self.registration.scope).pathname;const SHELL=['','index.html','support.js','manifest.webmanifest','icon-192.png','icon-512.png','Main.dc.html','Mapa.dc.html','Quiz.dc.html','Clases.dc.html','Carta.dc.html','Nivel.dc.html','install.js','shell.js','hl-core.js','tour.js'].map(x=>B+x);
 async function unpack(){const c=await caches.open(CACHE);/* pictures unchanged since last time: keep them, no re-download */if(await c.match('/_blob/__packs_ok__'))return;const idx=await (await fetch(B+'packs/index.json?v='+V,{cache:'no-store'})).json();
  let done=0;const total=idx.packs.length;
  await Promise.all(idx.packs.map(async(pk)=>{const buf=await (await fetch(B+'packs/'+pk.file+'?v='+V,{cache:'no-store'})).arrayBuffer();
@@ -11,6 +11,7 @@ self.addEventListener('install',e=>{e.waitUntil((async()=>{await unpack();const 
 self.addEventListener('activate',e=>{e.waitUntil((async()=>{for(const k of await caches.keys())if(k!==CACHE&&k!==PAGES)await caches.delete(k);await self.clients.claim();})());});
 self.addEventListener('fetch',e=>{const u=new URL(e.request.url);if(u.origin!==location.origin)return;
  if(u.pathname.startsWith(B+'_blob/')){e.respondWith((async()=>{const c=await caches.open(CACHE);const r=await c.match(u.pathname);if(r){const rg=e.request.headers.get('range');if(rg&&/^video\//.test(r.headers.get('content-type')||'')){const b=await r.arrayBuffer();const m=/bytes=(\d+)-(\d*)/.exec(rg);const s=+m[1],en=m[2]?+m[2]:b.byteLength-1;return new Response(b.slice(s,en+1),{status:206,headers:{'content-type':r.headers.get('content-type'),'content-range':`bytes ${s}-${en}/${b.byteLength}`,'accept-ranges':'bytes','content-length':String(en-s+1)}});}return r;}return new Response('',{status:404});})());return;}
+ if(/\/media\/[^/]+\.(webp|png|jpg|svg)$/.test(u.pathname)){e.respondWith((async()=>{const c=await caches.open(CACHE);const k=u.pathname+u.search;const hit=await c.match(k);if(hit)return hit;const r=await fetch(e.request);if(r.ok)c.put(k,r.clone());return r;})());return;}
  if(e.request.mode==='navigate'||/\.(dc\.html|js|webmanifest|png)$/.test(u.pathname)){e.respondWith((async()=>{const p=await caches.open(PAGES);const key=u.pathname;const hit=await p.match(key);
   if(hit)return hit;
   const net=fetch(e.request,{cache:'no-cache'}).then(r=>{if(r.ok&&!r.redirected){p.put(u.pathname,r.clone());}return r;}).catch(()=>null);
